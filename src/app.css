@@ -2773,5 +2773,8 @@ textarea,
     transition-duration: 0s !important;
   }
 }
+.topnav-right {
+  float: right;
+}
 
 /*# sourceMappingURL=app.css.map */
