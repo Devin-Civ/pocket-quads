@@ -1,2 +1,9 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<header>
+	<h1>Welcome to Sick River Poker!</h1>
+</header>
+<main>
+	<section>
+		<p>This is the home page.</p>
+		<button>Play!</button>
+	</section>
+</main>
