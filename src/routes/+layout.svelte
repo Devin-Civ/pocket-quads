@@ -4,6 +4,7 @@
 	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
 
+	// Lister for auth events on the client, to handle refreshes/signouts
 	export let data;
 	$: ({ session, supabase } = data);
 

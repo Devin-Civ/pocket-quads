@@ -6,14 +6,13 @@ import type { Actions } from './$types';
 
 const schema = z.object({
 	email: z.string().email(),
-	password: z.string().min(6)
+	password: z.string().min(6, 'Password must be at least 6 characters long.')
 });
 
 export const actions: Actions = {
-	login: async ({ request, locals: { supabase } }) => {
+	signup: async ({ request, locals: { supabase } }) => {
 		const form = await superValidate(request, zod(schema));
 		if (!form.valid) {
-			// Again, return { form } and things will just work.
 			return fail(400, { form });
 		}
 		const { error } = await supabase.auth.signUp({
@@ -22,15 +21,17 @@ export const actions: Actions = {
 		});
 		if (error) {
 			console.error(error);
-			redirect(303, '/auth/error');
+			return fail(400, { form, message: 'Sign-up failed. Please try again.' });
 		} else {
-			redirect(303, '/');
+			return {
+				form,
+				message: 'Sign-up successful! Please check your email to confirm your sign-up.'
+			};
 		}
 	},
-	signup: async ({ request, locals: { supabase } }) => {
+	login: async ({ request, url, locals: { supabase } }) => {
 		const form = await superValidate(request, zod(schema));
 		if (!form.valid) {
-			// Again, return { form } and things will just work.
 			return fail(400, { form });
 		}
 		const { error } = await supabase.auth.signInWithPassword({
@@ -39,9 +40,14 @@ export const actions: Actions = {
 		});
 		if (error) {
 			console.error(error);
-			redirect(303, '/auth/error');
+			return fail(400, { form, message: 'Login failed. Please try again.' });
 		} else {
-			redirect(303, '/private/lobbies');
+			const redirectTo = url.searchParams.get('redirectTo');
+			console.log('Redirecting to:', redirectTo); // Debugging log
+			if (redirectTo) {
+				return redirect(302, redirectTo);
+			}
+			return redirect(302, '/');
 		}
 	}
 };

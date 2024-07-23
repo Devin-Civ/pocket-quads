@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { redirect, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
+import { handleLoginRedirect } from '$lib/utils';
 
 import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
 
@@ -50,12 +51,21 @@ const authGuard: Handle = async ({ event, resolve }) => {
 	event.locals.user = user;
 	event.locals.session = session;
 
-	if (!event.locals.session && event.url.pathname.startsWith('/private')) {
-		return redirect(303, '/auth');
+	// Check if the route is part of the authed group
+	const isAuthedGroup = event.route.id?.includes('/(authed)');
+
+	if (!event.locals.session && isAuthedGroup) {
+		// Prevent redirect loop by checking if the current path is already /auth
+		if (event.url.pathname !== '/auth') {
+			return redirect(303, handleLoginRedirect(event));
+		}
 	}
 
 	if (event.locals.session && event.url.pathname.startsWith('/auth')) {
-		return redirect(303, '/private/lobbies');
+		// Prevent redirect loop by checking if the current path is already /auth
+		if (event.url.pathname !== '/auth') {
+			return redirect(303, '/');
+		}
 	}
 
 	return resolve(event);
