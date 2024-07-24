@@ -1,3 +1,27 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+
+	export let data;
+	let { session, supabase } = data;
+	let username = '';
+
+	onMount(async () => {
+		if (session) {
+			const { data, error } = await supabase
+				.from('profiles')
+				.select('username')
+				.eq('id', session.user.id)
+				.single();
+
+			if (error) {
+				console.error('Error fetching username:', error);
+			} else {
+				username = data.username;
+			}
+		}
+	});
+</script>
+
 <svelte:head>
 	<title>Sick River Poker</title>
 </svelte:head>
@@ -5,7 +29,7 @@
 <main style="display: flex; justify-content: center; text-align: center;">
 	<div>
 		<header>
-			<h1>Welcome to Sick River Poker</h1>
+			<h1>Welcome to Sick River{session ? `, ${username}` : ''}</h1>
 			<hr />
 		</header>
 		<section>

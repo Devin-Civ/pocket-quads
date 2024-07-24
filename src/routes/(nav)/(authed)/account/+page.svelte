@@ -1,68 +1,75 @@
 <!-- src/routes/account/+page.svelte -->
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	import type { SubmitFunction } from '@sveltejs/kit';
-	import Avatar from './Avatar.svelte';
+	import SuperDebug, { superForm } from 'sveltekit-superforms';
+	import { page } from '$app/stores';
 
 	export let data;
-	export let form;
+
+	// Client API:
+	const { form, enhance, submitting, errors, constraints, message } = superForm(data.form, {
+		resetForm: false
+	});
 
 	let { session, supabase, profile } = data;
 	$: ({ session, supabase, profile } = data);
-
-	let profileForm: HTMLFormElement;
-	let loading = false;
-	let fullName: string = profile?.full_name ?? '';
-	let username: string = profile?.username ?? '';
-	let avatarUrl: string = profile?.avatar_url ?? '';
-
-	const handleSubmit: SubmitFunction = () => {
-		loading = true;
-		return async () => {
-			loading = false;
-		};
-	};
 </script>
 
 <div class="container-fluid">
+	<section>
+		<SuperDebug data={$form} />
+	</section>
 	<form
 		class="form-widget"
-		method="post"
+		method="POST"
 		action="?/update"
 		style="text-align: left"
-		use:enhance={handleSubmit}
-		bind:this={profileForm}
+		use:enhance
+		novalidate
 	>
-		<Avatar
-			{supabase}
-			bind:url={avatarUrl}
-			size={10}
-			on:upload={() => {
-				profileForm.requestSubmit();
-			}}
-		/>
 		<div>
 			<label for="email">Email</label>
 			<input id="email" type="text" value={session.user.email} disabled />
 		</div>
 
 		<div>
-			<label for="fullName">Full Name</label>
-			<input id="fullName" name="fullName" type="text" value={form?.fullName ?? fullName} />
+			<label for="full_name">Full Name</label>
+			<input
+				id="full_name"
+				name="full_name"
+				type="text"
+				bind:value={$form.full_name}
+				aria-invalid={$errors.full_name ? 'true' : undefined}
+				{...$constraints.full_name}
+			/>
+			{#if $errors.full_name}
+				<p class="invalid">{$errors.full_name}</p>
+			{/if}
 		</div>
 
 		<div>
 			<label for="username">Username</label>
-			<input id="username" name="username" type="text" value={form?.username ?? username} />
+			<input
+				id="username"
+				name="username"
+				type="text"
+				bind:value={$form.username}
+				aria-invalid={$errors.username ? 'true' : undefined}
+				{...$constraints.username}
+			/>
+			{#if $errors.username}
+				<p class="invalid">{$errors.username}</p>
+			{/if}
 		</div>
-
 		<div>
 			<input
 				type="submit"
 				class="button block primary"
-				value={loading ? 'Loading...' : 'Update'}
-				disabled={loading}
+				aria-busy={$submitting}
+				aria-label="Updating..."
 			/>
 		</div>
 	</form>
+	{#if $message}
+		<div class:success={$page.status == 200} class:error={$page.status >= 400}>{$message}</div>
+	{/if}
 </div>

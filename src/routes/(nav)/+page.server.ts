@@ -1,9 +1,13 @@
 import { redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
-// import type { PageServerLoad } from './$types';
 
-// export const load: PageServerLoad = async () => {
-// 	return {};
+// export const load = async ({ locals: { safeGetSession, supabase } }) => {
+// 	const { session, user } = await safeGetSession();
+// 	return {
+// 		user,
+// 		session,
+// 		supabase
+// 	};
 // };
 
 export const actions: Actions = {

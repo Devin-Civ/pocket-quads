@@ -1,4 +1,4 @@
-import { superValidate } from 'sveltekit-superforms';
+import { message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 import { fail, redirect } from '@sveltejs/kit';
@@ -21,12 +21,9 @@ export const actions: Actions = {
 		});
 		if (error) {
 			console.error(error);
-			return fail(400, { form, message: 'Sign-up failed. Please try again.' });
+			return message(form, 'Sign-up failed. Please try again.', { status: 400 });
 		} else {
-			return {
-				form,
-				message: 'Sign-up successful! Please check your email to confirm your sign-up.'
-			};
+			message(form, 'Sign-up successful! Please check your email to confirm your sign-up.');
 		}
 	},
 	login: async ({ request, url, locals: { supabase } }) => {
@@ -40,7 +37,7 @@ export const actions: Actions = {
 		});
 		if (error) {
 			console.error(error);
-			return fail(400, { form, message: 'Login failed. Please try again.' });
+			return message(form, 'Login failed. Please try again.', { status: 400 });
 		} else {
 			const redirectTo = url.searchParams.get('redirectTo');
 			console.log('Redirecting to:', redirectTo); // Debugging log
