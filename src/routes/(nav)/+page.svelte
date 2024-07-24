@@ -23,13 +23,13 @@
 </script>
 
 <svelte:head>
-	<title>Sick River Poker</title>
+	<title>Pocket Quads</title>
 </svelte:head>
 
 <main style="display: flex; justify-content: center; text-align: center;">
 	<div>
 		<header>
-			<h1>Welcome to Sick River{session ? `, ${username}` : ''}</h1>
+			<h1>Welcome to Pocket Quads{session ? `, ${username}!` : '!'}</h1>
 			<hr />
 		</header>
 		<section>
