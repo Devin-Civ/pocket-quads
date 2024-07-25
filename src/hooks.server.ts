@@ -57,9 +57,13 @@ const authGuard: Handle = async ({ event, resolve }) => {
 	// Check if the route is part of the authed group
 	const isAuthedGroup = event.route.id?.includes('/(authed)');
 
+	console.log(event.route.id);
+
 	if (!event.locals.session && isAuthedGroup) {
+		console.log('!event.locals.session && isAuthedGroup');
 		// Prevent redirect loop by checking if the current path is already /auth
 		if (event.url.pathname !== '/auth') {
+			console.log('Redirecting to login');
 			return redirect(303, handleLoginRedirect(event));
 		}
 	}
