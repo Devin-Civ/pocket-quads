@@ -7,8 +7,9 @@
 	console.log('Data properties:', Object.keys(data));
 
 	// Client API:
-	const { form, enhance, submitting, errors, constraints, message } = superForm(data.form, {
-		resetForm: false
+	const { form, enhance, delayed, errors, constraints, message } = superForm(data.form, {
+		resetForm: false,
+		delayMs: 200
 	});
 
 	$: ({ user } = data);
@@ -39,7 +40,7 @@
 				{...$constraints.full_name}
 			/>
 			{#if $errors.full_name}
-				<p class="invalid">{$errors.full_name}</p>
+				<small>{$errors.full_name}</small>
 			{/if}
 		</div>
 
@@ -54,18 +55,16 @@
 				{...$constraints.username}
 			/>
 			{#if $errors.username}
-				<p class="invalid">{$errors.username}</p>
+				<small>{$errors.username}</small>
 			{/if}
 		</div>
 		<div>
-			<input
-				type="submit"
-				class="button block primary"
-				aria-busy={$submitting}
-				aria-label="Updating..."
-			/>
+			<input type="submit" class="button block primary" />
 		</div>
 	</form>
+	{#if $delayed}
+		<div aria-busy="true">Updating...</div>
+	{/if}
 	{#if $message}
 		<div class:success={$page.status == 200} class:error={$page.status >= 400}>{$message}</div>
 	{/if}

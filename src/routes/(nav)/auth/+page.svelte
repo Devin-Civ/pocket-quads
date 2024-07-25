@@ -4,7 +4,7 @@
 
 	export let data;
 	// Client API
-	const { form, enhance, message } = superForm(data.form);
+	const { form, enhance, message, errors } = superForm(data.form);
 
 	let redirectTo: string = $page.url.searchParams.get('redirectTo') ?? '';
 </script>
@@ -23,9 +23,15 @@
 		<form method="POST" action="?/login{redirectTo ? `&redirectTo=${redirectTo}` : ''}" use:enhance>
 			<label for="email">E-mail</label>
 			<input type="email" name="email" bind:value={$form.email} />
+			{#if $errors.email}
+				<small>{$errors.email}</small>
+			{/if}
 
 			<label for="password">Password</label>
 			<input type="password" name="password" bind:value={$form.password} />
+			{#if $errors.password}
+				<small>{$errors.password}</small>
+			{/if}
 			<button>Login</button>
 			<button formaction="?/signup">Sign up</button>
 		</form>

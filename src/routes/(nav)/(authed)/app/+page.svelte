@@ -1,6 +1,10 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 </script>
 
-<p style="text-align: center">
-	Available lobbies will be listed here, <br /> as well as a button to create a new one.
-</p>
+<section class="container-fluid">
+	<h1>Lobbies</h1>
+	<form method="POST" action="?/createLobby" use:enhance>
+		<button>+ Create Lobby</button>
+	</form>
+</section>
