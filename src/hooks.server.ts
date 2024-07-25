@@ -48,6 +48,9 @@ const supabase: Handle = async ({ event, resolve }) => {
 const authGuard: Handle = async ({ event, resolve }) => {
 	const { session, user } = await event.locals.safeGetSession();
 
+	console.log('Session:', session);
+	console.log('User:', user);
+
 	event.locals.user = user;
 	event.locals.session = session;
 
