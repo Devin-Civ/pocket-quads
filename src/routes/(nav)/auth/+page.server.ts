@@ -23,7 +23,7 @@ export const actions: Actions = {
 			console.error(error);
 			return message(form, 'Sign-up failed. Please try again.', { status: 400 });
 		} else {
-			message(form, 'Sign-up successful! Please check your email to confirm your sign-up.');
+			return message(form, 'Sign-up successful! Please check your email to confirm your sign-up.');
 		}
 	},
 	login: async ({ request, url, locals: { supabase } }) => {
@@ -40,7 +40,6 @@ export const actions: Actions = {
 			return message(form, 'Login failed. Please try again.', { status: 400 });
 		} else {
 			const redirectTo = url.searchParams.get('redirectTo');
-			console.log('Redirecting to:', redirectTo); // Debugging log
 			if (redirectTo) {
 				return redirect(302, redirectTo);
 			}

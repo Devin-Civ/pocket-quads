@@ -62,10 +62,7 @@ const authGuard: Handle = async ({ event, resolve }) => {
 	}
 
 	if (event.locals.session && event.url.pathname.startsWith('/auth')) {
-		// Prevent redirect loop by checking if the current path is already /auth
-		if (event.url.pathname !== '/auth') {
-			return redirect(303, '/');
-		}
+		return redirect(303, '/app');
 	}
 
 	return resolve(event);

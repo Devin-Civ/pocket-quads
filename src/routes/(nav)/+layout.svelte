@@ -11,7 +11,8 @@
 
 	async function handleSignOut() {
 		await supabase.auth.signOut();
-		goto('/');
+		goto('/', { replaceState: true });
+		location.reload(); // Refresh the page
 	}
 </script>
 

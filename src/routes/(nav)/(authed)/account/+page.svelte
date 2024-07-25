@@ -1,23 +1,20 @@
 <!-- src/routes/account/+page.svelte -->
 <script lang="ts">
-	import SuperDebug, { superForm } from 'sveltekit-superforms';
+	import { superForm } from 'sveltekit-superforms';
 	import { page } from '$app/stores';
 
 	export let data;
+	console.log('Data properties:', Object.keys(data));
 
 	// Client API:
 	const { form, enhance, submitting, errors, constraints, message } = superForm(data.form, {
 		resetForm: false
 	});
 
-	let { session, supabase, profile } = data;
-	$: ({ session, supabase, profile } = data);
+	$: ({ user } = data);
 </script>
 
 <div class="container-fluid">
-	<section>
-		<SuperDebug data={$form} />
-	</section>
 	<form
 		class="form-widget"
 		method="POST"
@@ -28,7 +25,7 @@
 	>
 		<div>
 			<label for="email">Email</label>
-			<input id="email" type="text" value={session.user.email} disabled />
+			<input id="email" type="text" value={user?.email} disabled />
 		</div>
 
 		<div>
