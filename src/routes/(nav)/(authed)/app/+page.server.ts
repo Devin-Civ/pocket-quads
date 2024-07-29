@@ -1,7 +1,4 @@
-const testRooms = [
-	{ name: 'bciv', max_players: 9, players: [] },
-	{ name: 'ColCivLax', max_players: 9, players: [] }
-];
+const testRooms = [{ name: 'bciv', max_players: 9, players: [] }];
 
 export const load = async () => {
 	return { rooms: testRooms };
