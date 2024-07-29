@@ -43,6 +43,17 @@ export const actions: Actions = {
 			return fail(400, { form });
 		}
 
+		// Check if the username already exists
+		const { count } = await supabase
+			.from('profiles')
+			.select('username', { count: 'exact', head: true })
+			.eq('username', form.data.username)
+			.neq('id', user?.id);
+
+		if (count > 0) {
+			return message(form, 'Username already exists!', { status: 400 });
+		}
+
 		const { error } = await supabase.from('profiles').upsert({
 			id: user?.id,
 			full_name: form.data.full_name,

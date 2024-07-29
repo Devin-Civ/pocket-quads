@@ -1,8 +1,14 @@
-// empty load to ping server and protect route
-export const load = async () => {};
+const testRooms = [
+	{ name: 'bciv', max_players: 9, players: [] },
+	{ name: 'ColCivLax', max_players: 9, players: [] }
+];
+
+export const load = async () => {
+	return { rooms: testRooms };
+};
 
 export const actions = {
-	createLobby: async () => {
+	createRoom: async () => {
 		console.log('Creating lobby');
 	}
 };
