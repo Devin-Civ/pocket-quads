@@ -1,6 +1,4 @@
 <script lang="ts">
-	import Input from './Input.svelte';
-	export let data: { room: string };
 </script>
 
 <nav>
@@ -12,3 +10,4 @@
 </nav>
 
 <!-- TODO: GAME LAYOUT -->
+<slot />

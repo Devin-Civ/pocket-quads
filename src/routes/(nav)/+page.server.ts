@@ -1,9 +1,9 @@
 import { redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
 
-export const load = async ({ locals: { session, supabase, user } }) => {
+export const load = async ({ locals: { supabase, user } }) => {
 	let name = '';
-	if (session) {
+	if (user) {
 		const { data, error } = await supabase
 			.from('profiles')
 			.select('full_name')

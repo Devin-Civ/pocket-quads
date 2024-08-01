@@ -4,7 +4,6 @@
 	import { page } from '$app/stores';
 
 	export let data;
-	console.log('Data properties:', Object.keys(data));
 
 	// Client API:
 	const { form, enhance, delayed, errors, constraints, message } = superForm(data.form, {

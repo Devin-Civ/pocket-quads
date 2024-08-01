@@ -27,3 +27,12 @@
 		</section>
 	</div>
 </main>
+
+<style>
+	main {
+		--pico-border-radius: 2rem;
+		--pico-typography-spacing-vertical: 1.5rem;
+		--pico-form-element-spacing-vertical: 1rem;
+		--pico-form-element-spacing-horizontal: 1.25rem;
+	}
+</style>

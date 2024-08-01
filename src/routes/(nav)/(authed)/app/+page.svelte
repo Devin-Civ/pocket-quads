@@ -41,6 +41,7 @@
 					<li>
 						<select name="stakes" aria-label="Stakes" required bind:value={stakes}>
 							<option selected disabled value="">Select the stakes you want to play...</option>
+							<!-- TODO add user cutomization here or store in DB -->
 							<option>1 / 2 Blinds, 50 - 200 Buy in</option>
 							<option>5 / 10 Blinds, 250 - 1000 Buy in</option>
 						</select>

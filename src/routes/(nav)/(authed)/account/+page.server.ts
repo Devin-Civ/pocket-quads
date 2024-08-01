@@ -14,10 +14,11 @@ const profileSchema = z.object({
 	username: z
 		.string({ invalid_type_error: 'Please enter a username' })
 		.min(3, ' Username must contain at least three characters')
+		.max(10, ' Username must not exceed 10 characters')
 		.regex(/^[A-Za-z0-9]+$/, ' Username can only contain A-Z, a-z, 0-9')
 });
 
-export const load = async ({ locals: { supabase, session, user } }) => {
+export const load = async ({ locals: { supabase, user } }) => {
 	const { data, error: queryError } = await supabase
 		.from('profiles')
 		.select(`username, full_name`)
@@ -32,7 +33,7 @@ export const load = async ({ locals: { supabase, session, user } }) => {
 	const profile = data;
 	const form = await superValidate(profile, zod(profileSchema));
 
-	return { session, profile, form };
+	return { profile, form };
 };
 
 export const actions: Actions = {

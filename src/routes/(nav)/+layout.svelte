@@ -1,13 +1,10 @@
 <script lang="ts">
-	import type { SupabaseClient } from '@supabase/supabase-js';
 	import type { LayoutData } from './$types';
 	import { goto } from '$app/navigation';
 
 	export let data: LayoutData;
 
-	let session, supabase: SupabaseClient;
-
-	$: ({ session, supabase } = data);
+	$: ({ user, supabase } = data);
 
 	async function handleSignOut() {
 		await supabase.auth.signOut();
@@ -23,13 +20,11 @@
 		<li><a href="/app">Play</a></li>
 		<li><a href="/account">Account</a></li>
 		<!-- Add signout button -->
-		{#if session}
+		{#if user}
 			<li>
 				<button class="outline secondary" on:click={handleSignOut}>Log Out</button>
 			</li>
 		{/if}
 	</ul>
 </nav>
-<div class="container-fluid">
-	<slot />
-</div>
+<slot />
