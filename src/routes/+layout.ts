@@ -1,5 +1,6 @@
 import { createBrowserClient, createServerClient, isBrowser } from '@supabase/ssr';
 import type { LayoutLoad } from './$types';
+import { safeGetSession } from '$lib/supabase';
 
 import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
 
@@ -24,13 +25,7 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 				}
 			});
 
-	const {
-		data: { session }
-	} = await supabase.auth.getSession();
-
-	const {
-		data: { user }
-	} = await supabase.auth.getUser();
+	const { user, session } = await safeGetSession(supabase);
 
 	return { user, session, supabase };
 };

@@ -2,8 +2,12 @@ import { createServerClient } from '@supabase/ssr';
 import { redirect, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { handleLoginRedirect } from '$lib/utils';
-
+import { safeGetSession } from '$lib/supabase';
 import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
+
+// This handle function creates a supabase client for each request
+// and defines a way for the rest of the application to access
+// session/user data securely
 
 const supabase: Handle = async ({ event, resolve }) => {
 	// Create a Supabase client specific to this request
@@ -19,23 +23,7 @@ const supabase: Handle = async ({ event, resolve }) => {
 	});
 
 	event.locals.safeGetSession = async () => {
-		const {
-			data: { session }
-		} = await event.locals.supabase.auth.getSession();
-		if (!session) {
-			return { session: null, user: null };
-		}
-
-		const {
-			data: { user },
-			error
-		} = await event.locals.supabase.auth.getUser();
-		if (error) {
-			// JWT validation has failed
-			return { session: null, user: null };
-		}
-
-		return { session, user };
+		return await safeGetSession(event.locals.supabase);
 	};
 
 	return resolve(event, {
@@ -66,5 +54,16 @@ const authGuard: Handle = async ({ event, resolve }) => {
 
 	return resolve(event);
 };
+
+// Some ChatGPT example of another handle function
+// const someHandler: Handle = async ({ event, resolve }) => {
+//     const { user } = await event.locals.safeGetSession();
+//     if (user) {
+//         // Render user-specific content
+//     } else {
+//         // Render guest content
+//     }
+//     return resolve(event);
+// };
 
 export const handle = sequence(supabase, authGuard);
