@@ -10,34 +10,31 @@
 	<section style="width: 50%">
 		<h1>Rooms:</h1>
 		<hr />
-		{#if data.rooms.length === 0}
-			<p>No rooms found</p>
-		{:else}
-			<aside>
-				<nav>
-					<ul>
-						{#each data.rooms as room}
-							<li>
-								<a href="/app/rooms/{room.name}" role="button" class="outline secondary"
-									>{room.name} ({room.players.length}/{room.max_players})</a
-								>
-							</li>
-						{/each}
-					</ul>
-				</nav>
-			</aside>
-		{/if}
+		<aside>
+			<nav>
+				<ul>
+					{#each data.rooms as room}
+						<li>
+							<a href="/app/rooms/{room.creator_username}" role="button" class="outline secondary"
+								>{room.creator_username} ({room.current_players}/{room.max_players})</a
+							>
+						</li>
+					{/each}
+				</ul>
+			</nav>
+		</aside>
 	</section>
+	<!-- TODO: MAKE ZOD FORM -->
 	<section>
 		<form method="POST" action="?/createRoom" use:enhance>
 			<details class="dropdown">
 				<!-- svelte-ignore a11y-no-redundant-roles -->
 				<summary role="button" class="secondary">Create Room</summary>
 				<ul>
-					<li>
+					<!-- <li>
 						<p>Max number of players: {max_players}</p>
 						<input type="range" name="max_players" min="2" max="9" bind:value={max_players} />
-					</li>
+					</li> -->
 					<li>
 						<select name="stakes" aria-label="Stakes" required bind:value={stakes}>
 							<option selected disabled value="">Select the stakes you want to play...</option>

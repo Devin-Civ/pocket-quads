@@ -1,4 +1,5 @@
 export function load({ params, locals }) {
+	// TODO : update players table, rooms table
 	const public_supabase = locals.supabase;
 
 	return { room_data: { name: params.room } };
