@@ -1,9 +1,21 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import { superForm, type SuperForm } from 'sveltekit-superforms';
 	export let data;
 	let stakes = '';
 	let buy_in = '';
 	let max_players = 9;
+
+	const { forms, rooms } = data;
+
+	type FormStates = {
+		[key: string]: SuperForm<any, any>;
+	};
+
+	// Initialize Forms
+	let formStates: FormStates = {};
+	rooms.forEach((room: { id: number }) => {
+		formStates[String(room.id)] = superForm(forms[room.id]);
+	});
 </script>
 
 <div class="container-fluid">
@@ -13,11 +25,15 @@
 		<aside>
 			<nav>
 				<ul>
-					{#each data.rooms as room}
+					{#each rooms as room}
 						<li>
-							<a href="/app/rooms/{room.creator_username}" role="button" class="outline secondary"
-								>{room.creator_username} ({room.current_players}/{room.max_players})</a
-							>
+							<form method="post" action="?/joinRoom">
+								<input type="hidden" name="room_id" value={room.id} />
+								<input type="hidden" name="buy_in" value={room.buy_in} />
+								<button type="submit" class="secondary outline"
+									>Join {room.creator_username}'s Room</button
+								>
+							</form>
 						</li>
 					{/each}
 				</ul>
@@ -26,7 +42,7 @@
 	</section>
 	<!-- TODO: MAKE ZOD FORM -->
 	<section>
-		<form method="POST" action="?/createRoom" use:enhance>
+		<form method="POST" action="?/createRoom">
 			<details class="dropdown">
 				<!-- svelte-ignore a11y-no-redundant-roles -->
 				<summary role="button" class="secondary">Create Room</summary>

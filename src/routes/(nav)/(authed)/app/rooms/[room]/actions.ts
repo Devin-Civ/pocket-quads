@@ -13,7 +13,7 @@ export interface PlayerActions {
 	postBigBlind(): void;
 }
 
-export class PlayerActionsImpl implements PlayerActions {
+export class PlayerActions implements PlayerActions {
 	showCards(): void {
 		// Implementation here
 	}

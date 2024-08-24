@@ -6,7 +6,7 @@ import type { Cookies } from '@sveltejs/kit';
 import { LinkedListQueue } from '$lib/utils';
 import type { Deck } from '$lib/classes/deck';
 
-class Dealer implements Dealer {
+class Dealer {
 	private serviceBase: SupabaseClient;
 	private roomChannel: RealtimeChannel;
 

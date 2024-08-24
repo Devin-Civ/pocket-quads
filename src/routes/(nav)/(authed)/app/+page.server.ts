@@ -1,20 +1,10 @@
-export const load = async ({ locals: { supabase } }) => {
-	const { data, error } = await supabase.from('rooms').select('*');
-
-	if (error) {
-		console.error('Error fetching rooms:', error);
-		throw new Error('Error fetching rooms');
-	}
-
-	const rooms = data;
-
-	return { rooms };
-};
-
-// TODO: ZOD SCHEMA
+import { redirect } from '@sveltejs/kit';
+import { superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 import type { ZodSchema } from 'zod';
 
+// TODO: ZOD SCHEMA
 // const roomSchema: ZodSchema = z.object({
 // 	max_players: z
 // 		.number({ invalid_type_error: 'Please enter the maximum number of players' })
@@ -58,6 +48,66 @@ import type { ZodSchema } from 'zod';
 // 		)
 // });
 
+const joinSchema: ZodSchema = z.object({
+	room_id: z.string().min(1, 'Room ID is required'),
+	player_id: z.string().min(1, 'Player ID is required'),
+	buy_in: z.number().positive('Buy-in must be greater than 0')
+});
+
+export const load = async ({ locals: { supabase } }) => {
+	// Get Info from Rooms Table
+	const { data, error } = await supabase.from('rooms').select('*');
+	if (error) {
+		console.error('Error fetching rooms:', error);
+		throw new Error('Error fetching rooms');
+	}
+	const rooms = data;
+
+	// Initialize Forms
+	const forms = [];
+	for (const room of rooms) {
+		const form = await superValidate(zod(joinSchema), {
+			id: room.id
+		});
+		forms.push(form);
+	}
+
+	return { rooms, forms };
+};
+
 export const actions = {
-	createRoom: async () => {}
+	createRoom: async () => {},
+	joinRoom: async ({ request, locals: { supabase, user } }) => {
+		const formData = await request.formData();
+		const roomId = formData.get('room_id');
+		const buyIn: number = Number(formData.get('buy_in'));
+
+		// Update Players Table
+		const { error: playerError } = await supabase.from('players').upsert({
+			room_id: roomId,
+			player_id: user.id,
+			stack: buyIn
+		});
+
+		if (playerError) {
+			console.error('Error upserting player:', playerError);
+			throw new Error('Error upserting player');
+		}
+
+		// Update rooms table
+
+		// Subtract buy_in from user's balance
+		const { data: userData, error: userError } = await supabase
+			.from('users')
+			.select('*')
+			.eq('id', user.id);
+		const userBalance = userData[0].balance;
+		const { error: userUpdateError } = await supabase.from('users').upsert({
+			user_id: user.id,
+			balance: userBalance - buyIn
+		});
+
+		// Redirect to room
+		redirect(303, `/rooms/${roomId}`);
+	}
 };
