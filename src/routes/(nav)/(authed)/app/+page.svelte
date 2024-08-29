@@ -15,52 +15,54 @@
 <h1 style="text-align: center">Room Selection</h1>
 <hr />
 <!-- Form for joining a lobby -->
-<form method="POST" use:enhance>
-	<table>
-		<thead>
-			<tr
-				><th>Room Owner</th><th>Players</th><th>Type</th><th>Buy-in</th><th>Blinds</th><th
-					>Actions</th
-				></tr
-			>
-		</thead>
-		<tbody>
-			{#each rooms as room}
-				<tr>
-					<td>{room.creator_username}</td>
-					<td>{room.current_players}/{room.max_players}</td>
-					<td>{room.currency_type}</td>
-					<td>{room.max_buy_in}</td>
-					<td>{room.small_blind}/{room.big_blind}</td>
-					<td>
-						<button
-							formaction="?/joinRoom"
-							name="room_id"
-							value={room.id}
-							on:click={() => ($formId = room.id)}
-							aria-busy={$delayed && $formId === room.id}
-							>{#if $delayed && $formId === room.id}
-								Joining...
-							{:else}
-								Join
-							{/if}</button
-						>
-						{#if room.creator_id === user_id}
+<div class="overflow-auto">
+	<form method="POST" use:enhance>
+		<table>
+			<thead>
+				<tr
+					><th>Room Owner</th><th>Players</th><th>Type</th><th>Buy-in</th><th>Blinds</th><th
+						>Actions</th
+					></tr
+				>
+			</thead>
+			<tbody>
+				{#each rooms as room}
+					<tr>
+						<td>{room.creator_username}</td>
+						<td>{room.current_players}/{room.max_players}</td>
+						<td>{room.currency_type}</td>
+						<td>{room.max_buy_in}</td>
+						<td>{room.small_blind}/{room.big_blind}</td>
+						<td>
 							<button
-								formaction="?/deleteRoom"
-								name="id"
+								formaction="?/joinRoom"
+								name="room_id"
 								value={room.id}
 								on:click={() => ($formId = room.id)}
+								aria-busy={$delayed && $formId === room.id}
+								>{#if $delayed && $formId === room.id}
+									Joining...
+								{:else}
+									Join
+								{/if}</button
 							>
-								Delete
-							</button>
-						{/if}
-					</td>
-				</tr>
-			{/each}
-		</tbody>
-	</table>
-</form>
-{#if $message}
-	<p>{$message}</p>
-{/if}
+							{#if room.creator_id === user_id}
+								<button
+									formaction="?/deleteRoom"
+									name="id"
+									value={room.id}
+									on:click={() => ($formId = room.id)}
+								>
+									Delete
+								</button>
+							{/if}
+						</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+	</form>
+	{#if $message}
+		<p>{$message}</p>
+	{/if}
+</div>
