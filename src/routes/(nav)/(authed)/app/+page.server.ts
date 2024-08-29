@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import { superValidate } from 'sveltekit-superforms';
+import { fail, message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 import type { ZodSchema } from 'zod';
@@ -49,12 +49,10 @@ import type { ZodSchema } from 'zod';
 // });
 
 const joinSchema: ZodSchema = z.object({
-	room_id: z.string().min(1, 'Room ID is required'),
-	player_id: z.string().min(1, 'Player ID is required'),
-	buy_in: z.number().positive('Buy-in must be greater than 0')
+	room_id: z.string().min(1, 'Room ID is required')
 });
 
-export const load = async ({ locals: { supabase } }) => {
+export const load = async ({ locals: { supabase, user } }) => {
 	// Get Info from Rooms Table
 	const { data, error } = await supabase.from('rooms').select('*');
 	if (error) {
@@ -63,51 +61,101 @@ export const load = async ({ locals: { supabase } }) => {
 	}
 	const rooms = data;
 
-	// Initialize Forms
-	const forms = [];
-	for (const room of rooms) {
-		const form = await superValidate(zod(joinSchema), {
-			id: room.id
-		});
-		forms.push(form);
-	}
+	const form = await superValidate(zod(joinSchema));
 
-	return { rooms, forms };
+	return { rooms, form, user_id: user.id };
 };
 
 export const actions = {
 	createRoom: async () => {},
 	joinRoom: async ({ request, locals: { supabase, user } }) => {
-		const formData = await request.formData();
-		const roomId = formData.get('room_id');
-		const buyIn: number = Number(formData.get('buy_in'));
+		// Determine room ID
+		const form = await superValidate(request, zod(joinSchema));
+		if (!form.valid) {
+			return message(form, 'Invalid form');
+		}
+		const formData = form.data as { room_id: string };
+		const { room_id } = formData;
 
-		// Update Players Table
-		const { error: playerError } = await supabase.from('players').upsert({
-			room_id: roomId,
-			player_id: user.id,
-			stack: buyIn
-		});
+		// Fetch Room Data
+		const { data: roomData, error: roomError } = await supabase
+			.from('rooms')
+			.select('*')
+			.eq('id', room_id)
+			.single();
 
-		if (playerError) {
-			console.error('Error upserting player:', playerError);
-			throw new Error('Error upserting player');
+		if (roomError) {
+			return message(form, 'Error fetching room information');
 		}
 
-		// Update rooms table
+		// Check for room currency type
+		let resource;
+		if (roomData.currency_type === 'silver') {
+			resource = 'silver';
+		} else if (roomData.currency_type === 'gold') {
+			resource = 'gold';
+		} else {
+			return message(form, 'Invalid room type');
+		}
 
-		// Subtract buy_in from user's balance
-		const { data: userData, error: userError } = await supabase
-			.from('users')
-			.select('*')
-			.eq('id', user.id);
-		const userBalance = userData[0].balance;
-		const { error: userUpdateError } = await supabase.from('users').upsert({
-			user_id: user.id,
-			balance: userBalance - buyIn
+		// Fetch User Data
+		const { data: profileData, error: profileError } = await supabase
+			.from('profiles')
+			.select(`username, ${resource}`)
+			.eq('id', user.id)
+			.single();
+
+		if (profileError) {
+			return message(form, 'Error fetching user profile');
+		}
+
+		// Check if user has enough resources to join the room
+		if (profileData[resource] < roomData.max_buy_in) {
+			return message(form, `Insufficient ${resource} to join the room`);
+		}
+
+		let { error } = await supabase.rpc('join_room', {
+			in_room_id: room_id,
+			in_player_id: user.id,
+			in_buy_in: roomData.max_buy_in /*Temporary*/
 		});
 
+		if (error) {
+			return message(form, `Error joining room: ${error.message}`);
+		}
+
+		// // Make sure a seat is available, then reserve it
+		// // TODO: assign seat number
+		// console.log(room_id);
+		// let { data, error } = await supabase.rpc('reserve_seat', { room_id });
+		// if (error) {
+		// 	return message(form, `Error joining room: ${error.message}`);
+		// }
+		// // We've successfully updated the number of players in the room
+		// // Now update players table
+		// const { error: upsertError } = await supabase.from('players').upsert({
+		// 	player_id: user.id,
+		// 	stack: roomData.max_buy_in,
+		// 	room_id: room_id,
+		// 	username: profileData.username,
+		// 	seat: 42
+		// });
+
+		// if (upsertError) {
+		// 	return message(form, 'Error updating player information');
+		// }
+
+		// // Update the user's resource quantity
+		// const { error: updateError } = await supabase
+		// 	.from('profiles')
+		// 	.update({ [resource]: profileData[resource] - roomData.max_buy_in })
+		// 	.eq('id', user.id);
+
+		// if (updateError) {
+		// 	return message(form, 'Error updating user resource quantity');
+		// }
+
 		// Redirect to room
-		redirect(303, `/rooms/${roomId}`);
+		return redirect(303, `/app/rooms/${room_id}`);
 	}
 };
