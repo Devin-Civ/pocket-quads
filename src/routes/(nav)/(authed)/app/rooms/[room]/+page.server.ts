@@ -4,8 +4,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 
 const messageSchema = z.object({
-	content: z.string().min(1).max(50, 'Message must be less than 50 characters'),
-	username: z.string().min(1).max(50, 'Username must be less than 50 characters')
+	content: z.string().min(1).max(50, 'Message must be less than 50 characters')
 });
 
 const leaveSchema = z.object({});
@@ -25,9 +24,9 @@ export const load = async ({ params, locals: { supabase, user } }) => {
 	// 	throw new Error('Error upserting player');
 	// }
 
-	const { data: messages, error: messagesError } = await supabase
+	const { data: chatMessages, error: messagesError } = await supabase
 		.from('messages')
-		.select('*')
+		.select('content, username')
 		.eq('room_id', params.room);
 	const { data: players, error: playersError } = await supabase
 		.from('players')
@@ -43,13 +42,12 @@ export const load = async ({ params, locals: { supabase, user } }) => {
 		throw new Error('Error fetching messages or players');
 	}
 
-	console.log(messages);
 	const messageForm = await superValidate(zod(messageSchema));
 	const leaveRoomForm = await superValidate(zod(leaveSchema));
 
 	return {
-		room_data: { id: params.room, messages, players },
-		player_data: { user_id: user.id, username: user.username },
+		room_data: { room_id: params.room, chatMessages, players },
+		player_data: { user_id: user.id },
 		messageForm,
 		leaveRoomForm
 	};
@@ -61,19 +59,19 @@ export const actions = {
 	},
 	check: async () => {},
 	// etc
-	sendMessage: async ({ request, locals: { supabase, user }, params }) => {
+	sendMessage: async ({ request, locals: { supabase, user, username }, params }) => {
 		const form = await superValidate(request, zod(messageSchema));
 		if (!form.valid) {
 			return fail(400, { form });
 		}
 		const { error } = await supabase.from('messages').insert({
-			content: form.data.content,
 			room_id: params.room,
+			content: form.data.content,
 			user_id: user.id,
-			username: form.data.username
+			username
 		});
 		if (error) {
-			return fail(400, { form });
+			return message(form, `Error sending message: ${error.message}`);
 		}
 		return { form };
 	},

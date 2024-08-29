@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { superForm } from 'sveltekit-superforms';
 	export let data;
-	const { messages, players, id: room_id } = data.room_data;
-	const { form, enhance, errors } = superForm(data.messageForm);
+	let { chatMessages, players, room_id } = data.room_data;
+	const { form, enhance, errors, message } = superForm(data.messageForm);
 	const {
 		enhance: leaveRoomEnhance,
 		message: leaveRoomMessage,
 		errors: leaveRoomErrors
 	} = superForm(data.leaveRoomForm);
-	const { user_id, username } = data.player_data;
+	const { user_id } = data.player_data;
 
-	const roomChannel = data.supabase.channel(`${data.room_data.id}`);
+	const roomChannel = data.supabase.channel(room_id);
 	roomChannel
 		.on(
 			'postgres_changes',
@@ -21,9 +21,8 @@
 				filter: `room_id=eq.${room_id}`
 			},
 			(payload: any) => {
-				console.log(payload);
 				const { content, username } = payload.new;
-				messages.push({ username, content });
+				chatMessages = [...chatMessages, { content, username }];
 			}
 		)
 		.subscribe();
@@ -43,7 +42,7 @@
 {#if $leaveRoomMessage}
 	<p>{$leaveRoomMessage}</p>
 {/if}
-<form method="post" action="?/sendMessage" use:enhance>
+<form method="POST" action="?/sendMessage" use:enhance>
 	<!-- svelte-ignore a11y-no-redundant-roles -->
 	<fieldset role="group">
 		<input
@@ -52,15 +51,15 @@
 			placeholder="Enter your message here..."
 			bind:value={$form.content}
 		/>
-		<input type="hidden" name="username" value={username} />
 		<button type="submit">Send</button>
 	</fieldset>
-	{#if $errors.content}
-		<small>{$errors.content}</small>
+	{#if $message}
+		<small>{$message}</small>
 	{/if}
 </form>
+
 <div>
-	{#each messages as message}
-		<p>{message.content}</p>
+	{#each chatMessages as chatMessage}
+		<p>{chatMessage.username}: {chatMessage.content}</p>
 	{/each}
 </div>

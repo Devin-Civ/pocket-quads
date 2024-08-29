@@ -23,7 +23,19 @@ const supabase: Handle = async ({ event, resolve }) => {
 	});
 
 	event.locals.safeGetSession = async () => {
-		return await safeGetSession(event.locals.supabase);
+		const session = await safeGetSession(event.locals.supabase);
+		if (session?.user) {
+			const { data: profile, error } = await event.locals.supabase
+				.from('profiles')
+				.select('username')
+				.eq('id', session.user.id)
+				.single();
+
+			if (profile) {
+				event.locals.username = profile.username;
+			}
+		}
+		return session;
 	};
 
 	return resolve(event, {
