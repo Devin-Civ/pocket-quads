@@ -1,11 +1,10 @@
 import { createBrowserClient, createServerClient, isBrowser } from '@supabase/ssr';
-import type { LayoutLoad } from './$types';
 import { safeGetSession } from '$lib/supabase';
 
 import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
 
 // Create a supabase client to access supabase from the client or server
-export const load: LayoutLoad = async ({ data, depends, fetch }) => {
+export const load = async ({ data, depends, fetch }) => {
 	depends('supabase:auth');
 
 	const supabase = isBrowser()
@@ -25,7 +24,7 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 				}
 			});
 
-	const { user, session } = await safeGetSession(supabase);
+	const { user } = await safeGetSession(supabase);
 
-	return { user, session, supabase };
+	return { user, supabase };
 };

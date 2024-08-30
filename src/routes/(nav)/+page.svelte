@@ -1,6 +1,6 @@
 <script lang="ts">
 	export let data;
-	let { session, name } = data;
+	let { user, name } = data;
 </script>
 
 <svelte:head>
@@ -10,11 +10,11 @@
 <main style="display: flex; justify-content: center; text-align: center;">
 	<div>
 		<header>
-			<h1>Welcome to Pocket Quads{session && name ? `, ${name}!` : '!'}</h1>
+			<h1>Welcome to Pocket Quads{user && name ? `, ${name}!` : '!'}</h1>
 			<hr />
 		</header>
 		<section>
-			{#if session && !name}
+			{#if user && !name}
 				<p>Go to the Account tab to finish setting up your profile.</p>
 			{:else}
 				<p>This is the home page.</p>

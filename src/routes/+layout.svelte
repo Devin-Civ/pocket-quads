@@ -6,11 +6,11 @@
 
 	// Lister for auth events on the client, to handle refreshes/signouts
 	export let data;
-	$: ({ session, supabase } = data);
+	$: ({ supabase } = data);
 
 	onMount(() => {
-		const { data } = supabase.auth.onAuthStateChange((_, newSession) => {
-			if (newSession?.expires_at !== session?.expires_at) {
+		const { data } = supabase.auth.onAuthStateChange((event, newSession) => {
+			if (event === 'SIGNED_OUT') {
 				invalidate('supabase:auth');
 			}
 		});
