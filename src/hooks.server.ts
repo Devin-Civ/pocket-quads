@@ -67,15 +67,32 @@ const authGuard: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
-// Some ChatGPT example of another handle function
-// const someHandler: Handle = async ({ event, resolve }) => {
-//     const { user } = await event.locals.safeGetSession();
-//     if (user) {
-//         // Render user-specific content
-//     } else {
-//         // Render guest content
-//     }
-//     return resolve(event);
-// };
+const roomAccessGuard: Handle = async ({ event, resolve }) => {
+	const { user } = await event.locals.safeGetSession();
 
-export const handle = sequence(supabase, authGuard);
+	// Check if the URL contains the room slug parameter
+	const roomSlug = event.params.room;
+
+	// Bypass the check for joinRoom action
+	if (event.url.pathname.includes('/joinRoom')) {
+		return resolve(event);
+	}
+
+	if (user && roomSlug) {
+		const { data: player, error } = await event.locals.supabase
+			.from('players')
+			.select('room_id')
+			.eq('player_id', user.id)
+			.eq('room_id', roomSlug)
+			.single();
+
+		if (!player) {
+			// Redirect to a different page if the user doesn't have access to the room
+			return redirect(303, '/');
+		}
+	}
+
+	return resolve(event);
+};
+
+export const handle = sequence(supabase, authGuard, roomAccessGuard);

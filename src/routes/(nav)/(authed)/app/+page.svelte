@@ -4,12 +4,20 @@
 	let stakes = '';
 	let buy_in = '';
 	let max_players = 9;
+	import { supabase } from '$lib/supabase';
 
 	const { rooms, user_id } = data;
 	// High level: Imagine old style video games. (Gameboy Advance SP)
 	// Format: Menu -> Game
 	// Recall GramJam opening animation. Recall old loading screens
 	const { enhance, message, formId, delayed } = superForm(data.form);
+
+	const roomChannel = supabase
+		.channel('custom-update-channel')
+		.on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'rooms' }, (payload) => {
+			console.log('Change received!', payload);
+		})
+		.subscribe();
 </script>
 
 <h1 style="text-align: center">Room Selection</h1>

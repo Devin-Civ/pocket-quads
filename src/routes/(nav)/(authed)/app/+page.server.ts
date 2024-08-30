@@ -77,83 +77,65 @@ export const actions = {
 		const formData = form.data as { room_id: string };
 		const { room_id } = formData;
 
+		// Check if the user is already in a different room
+		const { data: existingPlayers, error: existingPlayerError } = await supabase
+			.from('players')
+			.select('room_id')
+			.eq('player_id', user.id);
+
+		if (existingPlayerError) {
+			console.error('Error checking existing room status:', existingPlayerError);
+			return message(form, 'Error checking existing room status');
+		}
+
+		if (existingPlayers.length > 1) {
+			console.error('Multiple entries found for the user in the players table');
+			return message(form, 'Multiple entries found for the user in the players table');
+		}
+
+		const existingPlayer = existingPlayers[0];
+
+		if (existingPlayer && existingPlayer.room_id !== room_id) {
+			return message(
+				form,
+				`You are still considered to be in room ${existingPlayer.room_id}. Please rejoin that room or wait approximately 10 seconds.`
+			);
+		}
+
 		// Fetch Room Data
 		const { data: roomData, error: roomError } = await supabase
 			.from('rooms')
 			.select('*')
 			.eq('id', room_id)
 			.single();
-
 		if (roomError) {
 			return message(form, 'Error fetching room information');
-		}
-
-		// Check for room currency type
-		let resource;
-		if (roomData.currency_type === 'silver') {
-			resource = 'silver';
-		} else if (roomData.currency_type === 'gold') {
-			resource = 'gold';
-		} else {
-			return message(form, 'Invalid room type');
 		}
 
 		// Fetch User Data
 		const { data: profileData, error: profileError } = await supabase
 			.from('profiles')
-			.select(`username, ${resource}`)
+			.select(`username, ${roomData.currency_type}`)
 			.eq('id', user.id)
 			.single();
-
 		if (profileError) {
 			return message(form, 'Error fetching user profile');
 		}
 
 		// Check if user has enough resources to join the room
-		if (profileData[resource] < roomData.max_buy_in) {
-			return message(form, `Insufficient ${resource} to join the room`);
+		if (profileData[roomData.currency_type] < roomData.max_buy_in) {
+			return message(form, `Insufficient ${roomData.currency_type} to join the room`);
 		}
 
+		// Join Room
 		let { error } = await supabase.rpc('join_room', {
 			in_room_id: room_id,
 			in_player_id: user.id,
 			in_buy_in: roomData.max_buy_in /*Temporary*/
 		});
-
 		if (error) {
 			return message(form, `Error joining room: ${error.message}`);
 		}
-
-		// // Make sure a seat is available, then reserve it
-		// // TODO: assign seat number
-		// console.log(room_id);
-		// let { data, error } = await supabase.rpc('reserve_seat', { room_id });
-		// if (error) {
-		// 	return message(form, `Error joining room: ${error.message}`);
-		// }
-		// // We've successfully updated the number of players in the room
-		// // Now update players table
-		// const { error: upsertError } = await supabase.from('players').upsert({
-		// 	player_id: user.id,
-		// 	stack: roomData.max_buy_in,
-		// 	room_id: room_id,
-		// 	username: profileData.username,
-		// 	seat: 42
-		// });
-
-		// if (upsertError) {
-		// 	return message(form, 'Error updating player information');
-		// }
-
-		// // Update the user's resource quantity
-		// const { error: updateError } = await supabase
-		// 	.from('profiles')
-		// 	.update({ [resource]: profileData[resource] - roomData.max_buy_in })
-		// 	.eq('id', user.id);
-
-		// if (updateError) {
-		// 	return message(form, 'Error updating user resource quantity');
-		// }
 
 		// Redirect to room
 		return redirect(303, `/app/rooms/${room_id}`);
