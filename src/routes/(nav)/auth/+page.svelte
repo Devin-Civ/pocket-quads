@@ -37,7 +37,7 @@
 		</form>
 	</section>
 	<section>
-		<p>Note: Password changes are currently unavailable. Store yours somewhere safe.</p>
+		<p>Forgot your password? <a href="/auth/reset-password">Reset it here</a>.</p>
 	</section>
 </main>
 

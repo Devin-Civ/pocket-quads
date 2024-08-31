@@ -1,13 +1,15 @@
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { z } from 'zod';
+import { userSchema } from '$lib/zSchemas';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
 
-const schema = z.object({
-	email: z.string().email(),
-	password: z.string().min(6, 'Password must be at least 6 characters long.')
-});
+const schema = userSchema;
+
+export const load = async () => {
+	const form = await superValidate(zod(schema));
+	return { form };
+};
 
 export const actions: Actions = {
 	signup: async ({ request, locals: { supabase } }) => {
@@ -46,9 +48,4 @@ export const actions: Actions = {
 			return redirect(302, '/');
 		}
 	}
-};
-
-export const load = async () => {
-	const form = await superValidate(zod(schema));
-	return { form };
 };
