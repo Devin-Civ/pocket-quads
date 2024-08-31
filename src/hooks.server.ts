@@ -79,7 +79,7 @@ const roomAccessGuard: Handle = async ({ event, resolve }) => {
 	}
 
 	if (user && roomSlug) {
-		const { data: player, error } = await event.locals.supabase
+		const { data: player } = await event.locals.supabase
 			.from('players')
 			.select('room_id')
 			.eq('player_id', user.id)
@@ -88,7 +88,7 @@ const roomAccessGuard: Handle = async ({ event, resolve }) => {
 
 		if (!player) {
 			// Redirect to a different page if the user doesn't have access to the room
-			return redirect(303, '/');
+			return redirect(303, '/app');
 		}
 	}
 

@@ -98,8 +98,12 @@ export const actions = {
 		if (existingPlayer && existingPlayer.room_id !== room_id) {
 			return message(
 				form,
-				`You are still considered to be in room ${existingPlayer.room_id}. Please rejoin that room or wait approximately 10 seconds.`
+				`You are still considered to be in room ${existingPlayer.room_id}. Please rejoin that room or wait 30 seconds.`
 			);
+		}
+		// If the player exists and the room exists, redirect them to the room page
+		if (existingPlayer && existingPlayer.room_id === room_id) {
+			return redirect(303, `/app/rooms/${room_id}`);
 		}
 
 		// Fetch Room Data

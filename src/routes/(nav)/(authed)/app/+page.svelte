@@ -5,19 +5,34 @@
 	let buy_in = '';
 	let max_players = 9;
 	import { supabase } from '$lib/supabase';
+	import { roomsStore } from '$lib/stores/rooms';
+	import { onMount } from 'svelte';
 
-	const { rooms, user_id } = data;
-	// High level: Imagine old style video games. (Gameboy Advance SP)
-	// Format: Menu -> Game
-	// Recall GramJam opening animation. Recall old loading screens
+	const { user_id } = data;
 	const { enhance, message, formId, delayed } = superForm(data.form);
 
-	const roomChannel = supabase
-		.channel('custom-update-channel')
-		.on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'rooms' }, (payload) => {
-			console.log('Change received!', payload);
-		})
-		.subscribe();
+	// Initialize the rooms store with the initial data
+	roomsStore.set(data.rooms);
+
+	onMount(() => {
+		const roomChannel = supabase
+			.channel('custom-update-channel')
+			.on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'rooms' }, (payload) => {
+				roomsStore.update((rooms) => {
+					const updatedRoom = rooms.find((room) => room.id === payload.new.id);
+					if (updatedRoom) {
+						updatedRoom.current_players = payload.new.current_players;
+					}
+					return rooms;
+				});
+			})
+			.subscribe();
+
+		// Clean up the subscription when the component is destroyed
+		return () => {
+			roomChannel.unsubscribe();
+		};
+	});
 </script>
 
 <h1 style="text-align: center">Room Selection</h1>
@@ -34,7 +49,7 @@
 				>
 			</thead>
 			<tbody>
-				{#each rooms as room}
+				{#each $roomsStore as room}
 					<tr>
 						<td>{room.creator_username}</td>
 						<td>{room.current_players}/{room.max_players}</td>

@@ -10,20 +10,6 @@ const messageSchema = z.object({
 const leaveSchema = z.object({});
 
 export const load = async ({ params, locals: { supabase, user } }) => {
-	// // TODO : update players table, rooms table
-	// // MIGHT ACTUALLY DO IN rooms/+page.server.ts instead
-	// //
-	// const { error } = await supabase.from('players').upsert({
-	// 	player_id: user.id,
-	// 	room_id: params.room
-	// 	// Use search params for is_host and buy in
-	// });
-
-	// if (error) {
-	// 	console.error('Error upserting player:', error);
-	// 	throw new Error('Error upserting player');
-	// }
-
 	const { data: chatMessages, error: messagesError } = await supabase
 		.from('messages')
 		.select('content, username')
@@ -47,7 +33,7 @@ export const load = async ({ params, locals: { supabase, user } }) => {
 
 	return {
 		room_data: { room_id: params.room, chatMessages, players },
-		player_data: { user_id: user.id },
+		user_id: user.id,
 		messageForm,
 		leaveRoomForm
 	};

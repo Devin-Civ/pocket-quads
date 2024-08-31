@@ -1,0 +1,17 @@
+export interface Room {
+	id: string;
+	creator_username: string;
+	current_players: number;
+	max_players: number;
+	currency_type: string;
+	max_buy_in: number;
+	small_blind: number;
+	big_blind: number;
+	creator_id: string;
+}
+
+export interface UserData {
+	user_id: string;
+	rooms: Room[];
+	form: any; // Adjust this type based on your form structure
+}
