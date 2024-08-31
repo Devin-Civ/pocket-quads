@@ -2,14 +2,15 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { supabase } from '$lib/supabase';
 	import Heartbeat from './Heartbeat.svelte';
+	import PlayerCard from './PlayerCard.svelte';
+	import { createPlayersStore } from '$lib/stores/players';
 
 	export let data;
-	let { chatMessages, players, room_id } = data.room_data;
-	const { user_id } = data;
+	let { players, room_id, user_id } = data;
 	const { form, enhance, errors, message } = superForm(data.messageForm);
 	const { enhance: leaveRoomEnhance, message: leaveRoomMessage } = superForm(data.leaveRoomForm);
 
-	console.log('Rendering +page.svelte');
+	const playersStore = createPlayersStore(players, room_id);
 </script>
 
 <nav>
@@ -43,9 +44,13 @@
 </form>
 
 <div>
-	{#each chatMessages as chatMessage}
+	<!-- {#each chatMessages as chatMessage}
 		<p>{chatMessage.username}: {chatMessage.content}</p>
-	{/each}
+	{/each} -->
 </div>
 
 <Heartbeat {user_id} />
+
+{#each $playersStore as player}
+	<PlayerCard {player} />
+{/each}

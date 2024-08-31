@@ -1,3 +1,4 @@
+import { createPlayersStore } from '$lib/stores/players';
 import { redirect } from '@sveltejs/kit';
 import { superValidate, message, fail } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
@@ -10,32 +11,22 @@ const messageSchema = z.object({
 const leaveSchema = z.object({});
 
 export const load = async ({ params, locals: { supabase, user } }) => {
-	const { data: chatMessages, error: messagesError } = await supabase
-		.from('messages')
-		.select('content, username')
-		.eq('room_id', params.room);
+	const room_id = params.room;
+
 	const { data: players, error: playersError } = await supabase
 		.from('players')
 		.select('*')
-		.eq('room_id', params.room);
-	const { data: room, error: roomError } = await supabase
-		.from('rooms')
-		.select('*')
-		.eq('id', params.room);
-
-	if (messagesError || playersError || roomError) {
-		console.error('Error fetching messages or players:', messagesError, playersError);
-		throw new Error('Error fetching messages or players');
-	}
+		.eq('room_id', room_id);
 
 	const messageForm = await superValidate(zod(messageSchema));
 	const leaveRoomForm = await superValidate(zod(leaveSchema));
 
 	return {
-		room_data: { room_id: params.room, chatMessages, players },
+		room_id,
 		user_id: user.id,
 		messageForm,
-		leaveRoomForm
+		leaveRoomForm,
+		players
 	};
 };
 
