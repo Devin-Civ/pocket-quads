@@ -24,7 +24,6 @@ export const load = async ({ params, locals: { supabase, user } }) => {
 	return {
 		room_id,
 		user_id: user.id,
-		messageForm,
 		leaveRoomForm,
 		players
 	};

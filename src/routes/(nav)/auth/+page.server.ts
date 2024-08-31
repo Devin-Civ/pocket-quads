@@ -37,7 +37,7 @@ export const actions: Actions = {
 		});
 		if (error) {
 			console.error(error);
-			return message(form, 'Login failed. Please try again.', { status: 400 });
+			return message(form, `Login failed. Please try again. ${error.message}`, { status: 400 });
 		} else {
 			const redirectTo = url.searchParams.get('redirectTo');
 			if (redirectTo) {

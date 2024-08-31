@@ -14,7 +14,9 @@
 </script>
 
 <nav>
-	<ul></ul>
+	<ul>
+		<li>Silver: {data.silver}</li>
+	</ul>
 	<ul>
 		<li><a href="/">Home</a></li>
 		<li><a href="/app">Play</a></li>

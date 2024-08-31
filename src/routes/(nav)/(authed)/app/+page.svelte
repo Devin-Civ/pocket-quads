@@ -42,20 +42,18 @@
 	<form method="POST" use:enhance>
 		<table>
 			<thead>
-				<tr
-					><th>Room Owner</th><th>Players</th><th>Type</th><th>Buy-in</th><th>Blinds</th><th
-						>Actions</th
-					></tr
-				>
+				<tr>
+					<th>Actions</th>
+					<th>Room Owner</th>
+					<th>Players</th>
+					<th>Type</th>
+					<th>Buy-in</th>
+					<th>Blinds</th>
+				</tr>
 			</thead>
 			<tbody>
 				{#each $roomsStore as room}
 					<tr>
-						<td>{room.creator_username}</td>
-						<td>{room.current_players}/{room.max_players}</td>
-						<td>{room.currency_type}</td>
-						<td>{room.max_buy_in}</td>
-						<td>{room.small_blind}/{room.big_blind}</td>
 						<td>
 							<button
 								formaction="?/joinRoom"
@@ -71,6 +69,8 @@
 							>
 							{#if room.creator_id === user_id}
 								<button
+									style="background-color: #8B0000; margin-left: .75rem;"
+									class="secondary"
 									formaction="?/deleteRoom"
 									name="id"
 									value={room.id}
@@ -80,6 +80,11 @@
 								</button>
 							{/if}
 						</td>
+						<td>{room.creator_username}</td>
+						<td>{room.current_players}/{room.max_players}</td>
+						<td>{room.currency_type}</td>
+						<td>{room.max_buy_in}</td>
+						<td>[ {room.small_blind} | {room.big_blind} ]</td>
 					</tr>
 				{/each}
 			</tbody>

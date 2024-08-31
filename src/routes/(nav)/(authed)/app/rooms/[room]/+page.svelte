@@ -7,7 +7,6 @@
 
 	export let data;
 	let { players, room_id, user_id } = data;
-	const { form, enhance, errors, message } = superForm(data.messageForm);
 	const { enhance: leaveRoomEnhance, message: leaveRoomMessage } = superForm(data.leaveRoomForm);
 
 	const playersStore = createPlayersStore(players, room_id);
@@ -24,30 +23,6 @@
 		</li>
 	</ul>
 </nav>
-{#if $leaveRoomMessage}
-	<p>{$leaveRoomMessage}</p>
-{/if}
-<form method="POST" action="?/sendMessage" use:enhance>
-	<!-- svelte-ignore a11y-no-redundant-roles -->
-	<fieldset role="group">
-		<input
-			type="text"
-			name="content"
-			placeholder="Enter your message here..."
-			bind:value={$form.content}
-		/>
-		<button type="submit">Send</button>
-	</fieldset>
-	{#if $message}
-		<small>{$message}</small>
-	{/if}
-</form>
-
-<div>
-	<!-- {#each chatMessages as chatMessage}
-		<p>{chatMessage.username}: {chatMessage.content}</p>
-	{/each} -->
-</div>
 
 <Heartbeat {user_id} />
 
