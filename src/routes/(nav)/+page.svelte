@@ -1,21 +1,6 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	export let data;
-	let { user, name } = data;
-	let randomSentence = '';
-
-	onMount(async () => {
-		const response = await fetch('/api/generateSentence', {
-			method: 'POST'
-		});
-		const data = await response.json();
-
-		if (data.error) {
-			console.error(data.error);
-		} else {
-			randomSentence = data.randomSentence;
-		}
-	});
+	let { user, name, randomSentence } = data;
 </script>
 
 <svelte:head>
@@ -25,16 +10,24 @@
 <main style="display: flex; justify-content: center; text-align: center;">
 	<div>
 		<header>
-			<h1>Welcome back{user && name ? `, ${name}` : '!'}</h1>
+			{#if user && name}
+				<h1>Welcome back, {name}!</h1>
+			{:else}
+				<h1>Welcome!</h1>
+			{/if}
 			<hr />
 		</header>
 		<section>
-			{#if user && !name}
+			{#if !user}
 				<p>Go to the Account tab to finish setting up your profile.</p>
-			{:else if randomSentence}
-				<p style="max-width: 600px; margin: 0 auto;">{randomSentence}</p>
 			{:else}
-				<h2>...</h2>
+				{#await randomSentence}
+					<h2>...</h2>
+				{:then}
+					<p style="max-width: 600px; margin: 0 auto;">{randomSentence}</p>
+				{:catch}
+					<p>Nothing to see here!</p>
+				{/await}
 			{/if}
 			<div style="margin-top: 2rem;">
 				<form method="POST">

@@ -2,7 +2,7 @@
 	import { superForm } from 'sveltekit-superforms';
 
 	export let data;
-	const { form, enhance, message, errors } = superForm(data.form);
+	const { form, enhance, message, errors, delayed } = superForm(data.form);
 </script>
 
 <form method="post" use:enhance>
@@ -13,10 +13,14 @@
 		placeholder="Enter the email associated with your account"
 	/>
 	<button type="submit">Reset Password</button>
-	{#if message}
-		<p>{message}</p>
+	{#if $delayed}
+		<small>Working on it...</small>
 	{/if}
-	{#if errors}
-		<small>{errors}</small>
+	{#if $message}
+		<small>{$message}</small>
+	{/if}
+
+	{#if $errors.email}
+		<small>{$errors.email}</small>
 	{/if}
 </form>

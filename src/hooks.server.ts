@@ -25,7 +25,7 @@ const supabase: Handle = async ({ event, resolve }) => {
 	event.locals.safeGetSession = async () => {
 		const session = await safeGetSession(event.locals.supabase);
 		if (session?.user) {
-			const { data: profile, error } = await event.locals.supabase
+			const { data: profile } = await event.locals.supabase
 				.from('profiles')
 				.select('username')
 				.eq('id', session.user.id)
@@ -46,24 +46,30 @@ const supabase: Handle = async ({ event, resolve }) => {
 };
 
 const authGuard: Handle = async ({ event, resolve }) => {
+	console.log('authGuard: Start');
 	const { user } = await event.locals.safeGetSession();
+	console.log('authGuard: User session retrieved', user);
 
 	event.locals.user = user;
 
 	// Check if the route is part of the authed group
 	const isAuthedGroup = event.route.id?.includes('/(authed)');
+	console.log('authGuard: Is authed group', isAuthedGroup);
 
 	if (!event.locals.user && isAuthedGroup) {
 		// Prevent redirect loop by checking if the current path is already /auth
 		if (event.url.pathname !== '/auth') {
+			console.log('authGuard: User not authenticated, redirecting to /auth');
 			return redirect(303, handleLoginRedirect(event));
 		}
 	}
 
 	if (event.locals.user && event.url.pathname.startsWith('/auth')) {
+		console.log('authGuard: User authenticated, redirecting to /app');
 		return redirect(303, '/app');
 	}
 
+	console.log('authGuard: End');
 	return resolve(event);
 };
 

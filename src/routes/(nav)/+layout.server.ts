@@ -1,6 +1,7 @@
 import type { LayoutServerLoad } from './$types';
 
 export const load = async ({ locals: { user, supabase } }) => {
+	// Fetch user's name and silver on server load
 	let name = '';
 	let silver = 0;
 	if (user) {

@@ -15,7 +15,9 @@
 
 <nav>
 	<ul>
-		<li>Silver: {data.silver}</li>
+		{#if user}
+			<li>Silver: {data.silver}</li>
+		{/if}
 	</ul>
 	<ul>
 		<li><a href="/">Home</a></li>

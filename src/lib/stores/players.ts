@@ -1,18 +1,8 @@
 import { writable } from 'svelte/store';
 import { supabase } from '../supabase';
+import type { Player } from '../types';
 
-export interface Player {
-	// Define the structure of a player object
-	id: string;
-	username: string;
-	stack: number;
-	wager: number;
-	seat: number;
-	sitting_out: boolean;
-	is_folded: boolean;
-}
-
-export function createPlayersStore(initialPlayers: Player[], room_id: string) {
+export function createPlayersStore(initialPlayers: Player[]) {
 	const { subscribe, set } = writable(initialPlayers);
 
 	const fetchPlayers = async (room_id: string) => {

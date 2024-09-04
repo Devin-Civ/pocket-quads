@@ -16,7 +16,9 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		const { data, error } = await supabase.auth.resetPasswordForEmail(form.data.email);
+		const { data, error } = await supabase.auth.resetPasswordForEmail(form.data.email, {
+			redirectTo: 'http://localhost:5173/auth/reset-password/update-password'
+		});
 		if (error) {
 			console.error(error);
 			return message(form, `Password update failed. Please try again. ${error.message}`, {

@@ -15,3 +15,14 @@ export interface UserData {
 	rooms: Room[];
 	form: any; // Adjust this type based on your form structure
 }
+
+export interface Player {
+	// Define the structure of a player object
+	id: string;
+	username: string;
+	stack: number;
+	wager: number;
+	seat: number;
+	sitting_out: boolean;
+	is_folded: boolean;
+}
