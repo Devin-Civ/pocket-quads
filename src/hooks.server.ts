@@ -46,25 +46,22 @@ const supabase: Handle = async ({ event, resolve }) => {
 };
 
 const authGuard: Handle = async ({ event, resolve }) => {
-	console.log('authGuard: Start');
 	const { user } = await event.locals.safeGetSession();
-	console.log('authGuard: User session retrieved', user);
 
 	event.locals.user = user;
 
 	// Check if the route is part of the authed group
 	const isAuthedGroup = event.route.id?.includes('/(authed)');
-	console.log('authGuard: Is authed group', isAuthedGroup);
 
+	// If the user is not authenticated and the route is part of the authed group, redirect to the login page
 	if (!event.locals.user && isAuthedGroup) {
 		// Prevent redirect loop by checking if the current path is already /auth
-		if (event.url.pathname !== '/auth') {
-			console.log('authGuard: User not authenticated, redirecting to /auth');
+		if (!event.url.pathname.startsWith('/auth')) {
 			return redirect(303, handleLoginRedirect(event));
 		}
 	}
 
-	if (event.locals.user && event.url.pathname.startsWith('/auth')) {
+	if (event.locals.user && event.url.pathname === '/auth') {
 		console.log('authGuard: User authenticated, redirecting to /app');
 		return redirect(303, '/app');
 	}
