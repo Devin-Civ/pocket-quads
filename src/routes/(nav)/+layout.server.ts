@@ -1,8 +1,6 @@
 import type { LayoutServerLoad } from './$types';
 
-export const load = async ({ locals: { supabase, safeGetSession }, cookies }) => {
-	const { user, session } = await safeGetSession();
-
+export const load = async ({ locals: { user, supabase } }) => {
 	// Fetch user's name and silver on server load
 	let name = '';
 	let silver = 0;
@@ -14,11 +12,11 @@ export const load = async ({ locals: { supabase, safeGetSession }, cookies }) =>
 			.single();
 
 		if (error) {
-			console.error('Error fetching user info:', error);
+			console.error('Error fetching username:', error);
 		} else {
 			name = data.full_name.split(' ')[0];
 			silver = data.silver;
 		}
 	}
-	return { name, silver, user, cookies: cookies.getAll(), session };
+	return { name, silver };
 };

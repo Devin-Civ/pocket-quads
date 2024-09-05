@@ -1,9 +1,6 @@
 <script lang="ts">
 	import type { LayoutData } from './$types';
-	import { goto, invalidate } from '$app/navigation';
-	import { onMount } from 'svelte';
-	import '@picocss/pico';
-	import '../../app.css';
+	import { goto } from '$app/navigation';
 
 	export let data: LayoutData;
 
@@ -14,14 +11,6 @@
 		goto('/', { replaceState: true });
 		location.reload(); // Refresh the page
 	}
-	onMount(() => {
-		const { data } = supabase.auth.onAuthStateChange((event, newSession) => {
-			if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
-				invalidate('supabase:auth');
-			}
-		});
-		return () => data.subscription.unsubscribe();
-	});
 </script>
 
 <nav>
