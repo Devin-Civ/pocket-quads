@@ -23,10 +23,10 @@
 			{:else}
 				{#await randomSentence}
 					<h2>...</h2>
-				{:then}
-					<p style="max-width: 600px; margin: 0 auto;">{randomSentence}</p>
-				{:catch}
-					<p>Nothing to see here!</p>
+				{:then sentence}
+					<p style="max-width: 600px; margin: 0 auto;">{sentence.json().content}</p>
+				{:catch error}
+					<p>Nothing to see here! {error.message}</p>
 				{/await}
 			{/if}
 			<div style="margin-top: 2rem;">

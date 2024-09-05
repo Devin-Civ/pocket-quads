@@ -20,7 +20,7 @@ export const actions = {
 		});
 		if (error) {
 			console.error(error);
-			return message(form, 'Password update failed. Please try again.', { status: 400 });
+			return message(form, `Password update failed: ${error.message}`, { status: 400 });
 		} else {
 			return message(form, 'Password update successful!');
 		}
