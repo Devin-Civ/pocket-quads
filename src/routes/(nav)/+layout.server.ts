@@ -14,7 +14,11 @@ export const load = async ({ locals: { user, supabase } }) => {
 		if (error) {
 			console.error('Error fetching username:', error);
 		} else {
-			name = data.full_name.split(' ')[0];
+			if (data.full_name) {
+				name = data.full_name.split(' ')[0];
+			} else {
+				name = 'Mr. No-Name';
+			}
 			silver = data.silver;
 		}
 	}

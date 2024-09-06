@@ -126,6 +126,13 @@ export const actions = {
 			return message(form, 'Error fetching user profile');
 		}
 
+		if (!profileData.username) {
+			return message(
+				form,
+				'Please finish setting up your profile on the Account page before joining a room.'
+			);
+		}
+
 		// Check if user has enough resources to join the room
 		if (profileData[roomData.currency_type] < roomData.max_buy_in) {
 			return message(form, `Insufficient ${roomData.currency_type} to join the room`);
