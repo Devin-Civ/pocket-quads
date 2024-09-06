@@ -13,5 +13,95 @@
       "id": 3,
       "prompt": "When I say, \"Generate a random sentence\", you will generate a useful bit of poker advice. You have years of professional experience and have written and read many books about poker theory, GTO, nash equilibrium, pot odds, etc. Be brief. Your responses should be high in variance; try and come up with something obscure or unique each time."
     }
+  ],
+  "jokes": [
+    {
+      "id": 1,
+      "joke": "Well, I flopped quads... but my kicker is weak..."
+    },
+    {
+      "id": 2,
+      "joke": "Poker? I barely know her."
+    },
+    {
+      "id": 3,
+      "joke": "Avoid people with gold teeth who want to play cards."
+    },
+    {
+      "id": 4,
+      "joke": "I spent half my money on gambling, alcohol, and wild women. The other half I wasted."
+    },
+    {
+      "id": 5,
+      "joke": "I don't even fold my laundry."
+    },
+    {
+      "id": 6,
+      "joke": "It's only a gambling problem when I'm losing."
+    },
+    {
+      "id": 7,
+      "joke": "How do you get a professional poker player off your doorstep? Pay him for the pizza."
+    },
+    {
+      "id": 8,
+      "joke": "My wife is thinking of leaving me because of my obsession with poker. But I think she's bluffing."
+    },
+    {
+      "id": 9,
+      "joke": "This year's World Series of Poker is using the largest deck of cards ever. It's a pretty big deal."
+    },
+    {
+      "id": 10,
+      "joke": "Checks are for the bank."
+    },
+    {
+      "id": 11,
+      "joke": "Like Michaelangelo's David, he's got the stone nuts."
+    },
+    {
+      "id": 12,
+      "joke": "This board is dryer than a nun's ... liquor cabinet."
+    },
+    {
+      "id": 13,
+      "joke": "Did you know Pot Limit Omaha was named after a city? Pot Limit, Wyoming."
+    },
+    {
+      "id": 14,
+      "joke": "Be careful bluffing a new player. They'll call you more than a needy girlfriend."
+    },
+    {
+      "id": 15,
+      "joke": "My favorite hand is Aces. My second favorite? The other two Aces."
+    },
+    {
+      "id": 16,
+      "joke": "Sometimes your just gonna run worse than a hot girl in a horror movie."
+    },
+    {
+      "id": 17,
+      "joke": "Calling in that spot is like looking at an ex's facebook page, JUST DON'T DO IT!"
+    },
+    {
+      "id": 18,
+      "joke": "Like honking your car horn at a hot girl, some strategies will almost never work."
+    },
+    {
+      "id": 19,
+      "joke": "Hide yo kids, hide yo wife, and hide your husbands cause they raisin' everybody out here."
+    },
+    {
+      "id": 20,
+      "joke": "I have very strict starting hand requirements. Each card must have a number or a letter on it."
+    },
+    {
+      "id": 21,
+      "joke": "I haven't even played enough tournaments to know if I really am bad at them."
+    },
+    {
+      "id": 22,
+      "joke": "America, the land of the free and the home of the brave, where I can buy automatic guns in every store I go but I can't play online poker."
+    }
   ]
 }

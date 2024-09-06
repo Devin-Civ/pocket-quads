@@ -17,6 +17,24 @@ export const actions: Actions = {
 		if (!form.valid) {
 			return fail(400, { form });
 		}
+
+		const { data: userExists, error: userExistsError } = await supabase.rpc('check_user_exists', {
+			s_email: form.data.email
+		});
+
+		if (userExistsError) {
+			console.error(userExistsError);
+			return message(form, 'Error checking user existence. Please try again.', { status: 500 });
+		}
+
+		if (userExists) {
+			return message(
+				form,
+				'An account with this email already exists. Please use a different email.',
+				{ status: 400 }
+			);
+		}
+
 		const { error } = await supabase.auth.signUp({
 			email: form.data.email,
 			password: form.data.password

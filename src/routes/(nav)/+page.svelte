@@ -13,18 +13,18 @@
 			{#if user && name}
 				<h1>Welcome back, {name}!</h1>
 			{:else}
-				<h1>Welcome!</h1>
+				<h1>Welcome</h1>
 			{/if}
 			<hr />
 		</header>
 		<section>
 			{#if !user}
-				<p>Go to the Account tab to finish setting up your profile.</p>
+				<p>Poker? I barely know her.</p>
 			{:else}
 				{#await randomSentence}
 					<h2>...</h2>
-				{:then}
-					<p style="max-width: 600px; margin: 0 auto;">{randomSentence}</p>
+				{:then response}
+					<p style="max-width: 600px; margin: 0 auto;">{response.randomSentence}</p>
 				{:catch}
 					<p>Nothing to see here!</p>
 				{/await}

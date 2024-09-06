@@ -5,7 +5,7 @@ export const load = async ({ fetch }) => {
 	return {
 		randomSentence: fetch('/api/generateSentence', {
 			method: 'POST'
-		})
+		}).then((response) => response.json())
 	};
 };
 
