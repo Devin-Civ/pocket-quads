@@ -66,7 +66,6 @@ const authGuard: Handle = async ({ event, resolve }) => {
 		return redirect(303, '/app');
 	}
 
-	console.log('authGuard: End');
 	return resolve(event);
 };
 

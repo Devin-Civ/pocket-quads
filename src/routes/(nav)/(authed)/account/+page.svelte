@@ -58,7 +58,7 @@
 			{/if}
 		</div>
 		<div>
-			<input type="submit" class="button block primary" />
+			<input type="submit" class="button block primary" value="Update" />
 		</div>
 	</form>
 	{#if $delayed}

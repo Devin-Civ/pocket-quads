@@ -3,6 +3,8 @@
 	import Heartbeat from './Heartbeat.svelte';
 	import PlayerCard from './PlayerCard.svelte';
 	import { createPlayersStore } from '$lib/stores/players';
+	import { onMount } from 'svelte';
+	import { supabase } from '$lib/supabase';
 
 	export let data;
 	let { players, room_id, user_id } = data;
@@ -20,6 +22,20 @@
 	// Notes: Subscribe sets up an event handler (.on()). Thye should be unsubscribed to
 	// when not needed anymore, which means that I should probably keep them in svelte
 	// files, so that I can use the onMount() lifecycle hook to unsubscribe.
+
+	onMount(() => {
+		const playersChannel = supabase
+			.channel('room_players')
+			.on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'rooms' }, (payload) => {
+				playersStore.refresh(room_id);
+			})
+			.subscribe();
+
+		// Clean up the subscription when the component is destroyed
+		return () => {
+			playersChannel.unsubscribe();
+		};
+	});
 </script>
 
 <nav>
