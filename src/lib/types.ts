@@ -18,7 +18,7 @@ export interface UserData {
 
 export interface Player {
 	// Define the structure of a player object
-	id: string;
+	player_id: string;
 	username: string;
 	stack: number;
 	wager: number;

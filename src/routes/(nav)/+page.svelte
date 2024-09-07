@@ -1,6 +1,6 @@
 <script lang="ts">
 	export let data;
-	let { user, name, randomSentence } = data;
+	let { user, name, randomSentence, joke } = data;
 </script>
 
 <svelte:head>
@@ -13,13 +13,13 @@
 			{#if user && name}
 				<h1>Welcome back, {name}!</h1>
 			{:else}
-				<h1>Welcome</h1>
+				<h1>POCKET QUADS</h1>
 			{/if}
 			<hr />
 		</header>
 		<section>
 			{#if !user}
-				<p>Poker? I barely know her.</p>
+				<p>{joke}</p>
 			{:else}
 				{#await randomSentence}
 					<h2>...</h2>
