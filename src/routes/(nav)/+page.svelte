@@ -12,14 +12,18 @@
 		<header>
 			{#if user && name}
 				<h1>Welcome back, {name}!</h1>
-			{:else}
-				<h1>POCKET QUADS</h1>
+				<hr />
 			{/if}
-			<hr />
 		</header>
 		<section>
 			{#if !user}
-				<p>{joke}</p>
+				<h2>Welcome to Pocket Quads!</h2>
+				<p>YOUR go-to site for Texas Hold'em poker.</p>
+
+				<p>
+					Notice: This site is still under construction, so there may be bugs and major changes are
+					planned for the interface.
+				</p>
 			{:else}
 				{#await randomSentence}
 					<h2>...</h2>

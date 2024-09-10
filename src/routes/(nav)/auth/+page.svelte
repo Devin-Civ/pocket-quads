@@ -14,6 +14,11 @@
 </svelte:head>
 
 <main>
+	<p>
+		You must sign up or log in before playing, so that your chips can be recorded. <br />
+		Passwords are securely encrypted and your email is ONLY used for sign up confirmation/resetting your
+		password.
+	</p>
 	{#if $message}
 		<div class:success={$page.status == 200} class:error={$page.status >= 400}>
 			{$message}

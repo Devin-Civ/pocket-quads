@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 	import { derived } from 'svelte/store';
 	import { supabase } from '$lib/supabase';
+	import { goto } from '$app/navigation'; // Import the goto function
 	import type { Player } from '$lib/types';
 
 	export let data;
@@ -19,16 +20,15 @@
 		return $playersStore.slice().sort((a, b) => a.seat - b.seat);
 	});
 
-	// TODO: Does every move and every chat message have to persist in the DB?
-	// TODO: Can we just store the moves and chat messages in memory?
-	// Would enable broadcast // presence gameplay. Could build with that first,
-	// then with postgres channel listening, and see which is faster.
-	// TODO: Understand how the subscribe() method works, and whether
-	// channel().on().subscribe() is better than a custom store (check out the two examples in $lib/stores and their usages)
+	let actionSeat = 0;
 
-	// Notes: Subscribe sets up an event handler (.on()). Thye should be unsubscribed to
-	// when not needed anymore, which means that I should probably keep them in svelte
-	// files, so that I can use the onMount() lifecycle hook to unsubscribe.
+	// Check if the user is in the players store
+	$: {
+		const userInPlayers = $playersStore.some((player) => player.player_id === user_id);
+		if (!userInPlayers) {
+			goto('/app'); // Redirect to /app if the user is not found in the players store
+		}
+	}
 
 	onMount(() => {
 		const playersChannel = supabase
@@ -80,5 +80,5 @@
 <Heartbeat {user_id} />
 
 {#each $sortedPlayersStore as player}
-	<PlayerCard {player} />
+	<PlayerCard {player} {actionSeat} />
 {/each}
