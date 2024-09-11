@@ -1,6 +1,6 @@
 <script lang="ts">
 	export let data;
-	let { user, name, randomSentence, joke } = data;
+	let { user, name, randomSentence } = data;
 </script>
 
 <svelte:head>
@@ -17,8 +17,8 @@
 		</header>
 		<section>
 			{#if !user}
-				<h2>Welcome to Pocket Quads!</h2>
-				<p>YOUR go-to site for Texas Hold'em poker.</p>
+				<h2>welcome to pocket-quads!</h2>
+				<p>a simple texas hold'em poker game</p>
 
 				<p>
 					Notice: This site is still under construction, so there may be bugs and major changes are

@@ -30,10 +30,10 @@ class Dealer {
 	async queuePlayers(buttonPosition: number): Promise<LinkedListQueue<string>> {
 		const { data, error } = await this.serviceBase
 			.from('players')
-			.select('player_id, seat')
+			.select('player_id, seat_number')
 			.eq('room_id', this.roomId)
 			.eq('sitting_out', false)
-			.eq('folded', false);
+			.eq('has_cards', true);
 
 		if (error) {
 			throw new Error('Error fetching players');
@@ -45,10 +45,12 @@ class Dealer {
 
 		if (data) {
 			// Sort players by seat in ascending order
-			const sortedPlayers = data.sort((a, b) => a.seat - b.seat);
+			const sortedPlayers = data.sort((a, b) => a.seat_number - b.seat_number);
 
 			// Find the index of the player with the button position
-			const buttonIndex = sortedPlayers.findIndex((player) => player.seat === buttonPosition);
+			const buttonIndex = sortedPlayers.findIndex(
+				(player) => player.seat_number === buttonPosition
+			);
 
 			// Add players to the queue starting from the button position
 			for (let i = 0; i < sortedPlayers.length; i++) {

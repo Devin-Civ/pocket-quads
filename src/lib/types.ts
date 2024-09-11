@@ -8,6 +8,7 @@ export interface Room {
 	small_blind: number;
 	big_blind: number;
 	creator_id: string;
+	button_seat: number;
 }
 
 export interface UserData {
@@ -21,8 +22,9 @@ export interface Player {
 	player_id: string;
 	username: string;
 	stack: number;
-	wager: number;
-	seat: number;
+	current_wager: number;
+	seat_number: number;
 	sitting_out: boolean;
-	is_folded: boolean;
+	has_cards: boolean;
+	room_id: string;
 }

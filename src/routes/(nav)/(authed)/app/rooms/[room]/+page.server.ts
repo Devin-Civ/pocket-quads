@@ -10,6 +10,9 @@ const messageSchema = z.object({
 
 const leaveSchema = z.object({});
 
+const dealSchema = z.object({});
+const passButtonSchema = z.object({});
+
 export const load = async ({ params, locals: { supabase, user } }) => {
 	const room_id = params.room;
 
@@ -20,12 +23,16 @@ export const load = async ({ params, locals: { supabase, user } }) => {
 
 	const messageForm = await superValidate(zod(messageSchema));
 	const leaveRoomForm = await superValidate(zod(leaveSchema));
+	const dealForm = await superValidate(zod(dealSchema));
+	const passButtonForm = await superValidate(zod(passButtonSchema));
 
 	return {
 		room_id,
 		user_id: user.id,
 		leaveRoomForm,
-		players
+		players,
+		dealForm,
+		passButtonForm
 	};
 };
 
@@ -64,5 +71,25 @@ export const actions = {
 			return message(form, `Error leaving room: ${error.message}`);
 		}
 		return redirect(303, '/app');
+	},
+	deal: async ({ request, locals: { supabase }, params }) => {
+		const form = await superValidate(request, zod(dealSchema));
+		const { error } = await supabase.rpc('shuffle_and_deal', {
+			room_id_input: params.room
+		});
+		if (error) {
+			return message(form, `Error dealing: ${error.message}`);
+		}
+		return { form };
+	},
+	passButton: async ({ request, locals: { supabase }, params }) => {
+		const form = await superValidate(request, zod(passButtonSchema));
+		const { error } = await supabase.rpc('pass_button', {
+			room_id_input: params.room
+		});
+		if (error) {
+			return message(form, `Error passing button: ${error.message}`);
+		}
+		return { form };
 	}
 };
