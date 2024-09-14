@@ -27,4 +27,6 @@ export interface Player {
 	sitting_out: boolean;
 	has_cards: boolean;
 	room_id: string;
+	card_2?: string | null;
+	card_1?: string | null;
 }

@@ -1,29 +1,34 @@
 <script lang="ts">
 	import { superForm, type SuperForm } from 'sveltekit-superforms';
 	export let data;
-	let stakes = '';
-	let buy_in = '';
-	let max_players = 9;
 	import { supabase } from '$lib/supabase';
 	import { roomsStore } from '$lib/stores/rooms';
 	import { onMount } from 'svelte';
+	import type { Room } from '$lib/types.js';
 
 	const { user_id } = data;
 	const { enhance, message, formId, delayed } = superForm(data.form);
 
 	// Initialize the rooms store with the initial data
-	roomsStore.set(data.rooms);
+	$roomsStore = data.rooms;
 
 	onMount(() => {
 		const roomChannel = supabase
-			.channel('custom-update-channel')
-			.on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'rooms' }, (payload) => {
-				roomsStore.update((rooms) => {
-					const updatedRoom = rooms.find((room) => room.id === payload.new.id);
-					if (updatedRoom) {
-						updatedRoom.current_players = payload.new.current_players;
+			.channel('rooms')
+			.on('postgres_changes', { event: '*', schema: 'public', table: 'rooms' }, (payload) => {
+				roomsStore.update((rooms: Room[]) => {
+					switch (payload.eventType) {
+						case 'INSERT':
+							return [...rooms, payload.new as Room];
+						case 'UPDATE':
+							const updatedRoom = rooms.find((room) => room.id === payload.new.id);
+							if (updatedRoom) {
+								updatedRoom.current_players = payload.new.current_players;
+							}
+							return rooms;
+						case 'DELETE':
+							return rooms.filter((room) => room.id !== payload.old.id);
 					}
-					return rooms;
 				});
 			})
 			.subscribe();

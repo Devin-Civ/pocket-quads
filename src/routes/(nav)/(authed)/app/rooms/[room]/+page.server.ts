@@ -1,6 +1,8 @@
 import { redirect } from '@sveltejs/kit';
+import type { Player } from '$lib/types';
 
 export const load = async ({ params: { room }, locals }) => {
+	const user_id = locals.user.id;
 	const { data: roomData, error } = await locals.supabase
 		.from('rooms')
 		.select('*')
@@ -14,16 +16,21 @@ export const load = async ({ params: { room }, locals }) => {
 	const { data: playersData, error: playersError } = await locals.supabase
 		.from('players')
 		.select('*')
-		.eq('room_id', room);
+		.eq('room_id', room)
+		.order('seat_number', { ascending: true });
 
 	if (playersError) {
 		throw new Error(playersError.message);
 	}
 
+	if (!playersData.some((p: Player) => p.player_id === user_id)) {
+		throw redirect(303, '/app');
+	}
+
 	return {
 		room: roomData,
 		players: playersData,
-		user_id: locals.user.id
+		user_id
 	};
 };
 

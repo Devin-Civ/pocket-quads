@@ -16,24 +16,10 @@
 	$playersStore = players;
 	$currentRoomStore = room;
 
-	// Derived store to sort players by seat number :: TODO better way to handle this
-	const sortedPlayersStore = derived(playersStore, ($playersStore) => {
-		return $playersStore.slice().sort((a, b) => a.seat_number - b.seat_number);
-	});
-
 	let actionSeat = 0;
 
-	let userInPlayers = true;
-
-	// Check if the user is in the players store
-	$: {
-		userInPlayers = $playersStore.some((player) => player.player_id === user_id);
-		if (!userInPlayers) {
-			goto('/app'); // Redirect to /app if the user is not found in the players store
-		}
-	}
-
-	const user = $playersStore.find((player) => player.player_id === user_id);
+	// When the room is joined, we can assert that there exists a user with the user_id
+	const user = $playersStore.find((player) => player.player_id === user_id)!;
 
 	onMount(() => {
 		const playersChannel = supabase
@@ -42,33 +28,29 @@
 				'postgres_changes',
 				{ event: '*', schema: 'public', table: 'players', filter: `room_id=eq.${room.id}` },
 				(payload) => {
-					console.log('playersChannel: event received', payload);
-					playersStore.update((p: Player[]) => {
-						switch (payload.eventType) {
-							case 'INSERT':
-								return [...p, payload.new as Player];
-							case 'UPDATE':
-								return p.map((player) =>
-									player.player_id === (payload.new as Player).player_id
-										? (payload.new as Player)
-										: player
-								);
-							case 'DELETE':
-								return p.filter((player) => player.player_id !== payload.old.player_id);
-							default:
-								return p;
-						}
-					});
+					switch (payload.eventType) {
+						case 'INSERT':
+							playersStore.addPlayer(payload.new as Player);
+							break;
+						case 'UPDATE':
+							playersStore.updatePlayer(payload.new as Player);
+							break;
+						case 'DELETE':
+							if (payload.old.player_id === user_id) {
+								goto('/app');
+							}
+							playersStore.removePlayer(payload.old.player_id);
+							break;
+					}
 				}
 			)
 			.subscribe();
 		const roomChannel = supabase
-			.channel('rooms')
+			.channel('room')
 			.on(
 				'postgres_changes',
 				{ event: '*', schema: 'public', table: 'rooms', filter: `id=eq.${room.id}` },
 				(payload) => {
-					console.log('roomsChannel: event received', payload);
 					if (payload.eventType === 'UPDATE') {
 						$currentRoomStore = payload.new as Room;
 					} else {
@@ -77,10 +59,32 @@
 				}
 			)
 			.subscribe();
+		const cardChannel = supabase
+			.channel('cards')
+			.on(
+				'postgres_changes',
+				{
+					event: 'UPDATE',
+					schema: 'public',
+					table: 'player_cards',
+					filter: `player_id=eq.${user_id}`
+				},
+				(payload) => {
+					if (payload.new.card_1) {
+						user.card_1 = payload.new.card_1;
+					}
+					if (payload.new.card_2) {
+						user.card_2 = payload.new.card_2;
+					}
+					playersStore.updatePlayer(user);
+				}
+			)
+			.subscribe();
 		// Clean up the subscription when the component is destroyed
 		return () => {
 			playersChannel.unsubscribe();
 			roomChannel.unsubscribe();
+			cardChannel.unsubscribe();
 		};
 	});
 </script>
@@ -99,11 +103,11 @@
 
 <Heartbeat {user_id} />
 
-{#each $sortedPlayersStore as player}
+{#each $playersStore as player}
 	<PlayerCard {player} {actionSeat} />
 {/each}
 
-{#if user?.seat_number === $currentRoomStore?.button_seat}
+{#if user.seat_number === $currentRoomStore?.button_seat}
 	<div role="group" class="button-group">
 		<form method="POST" action="?/deal">
 			<button type="submit">Shuffle and Deal</button>

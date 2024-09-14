@@ -58,6 +58,7 @@ export const load = async ({ locals: { supabase, user } }) => {
 		.from('rooms')
 		.select('*')
 		.order('current_players', { ascending: false });
+
 	if (error) {
 		console.error('Error fetching rooms:', error);
 		throw new Error('Error fetching rooms');
