@@ -54,7 +54,10 @@ const joinSchema: ZodSchema = z.object({
 
 export const load = async ({ locals: { supabase, user } }) => {
 	// Get Info from Rooms Table
-	const { data, error } = await supabase.from('rooms').select('*');
+	const { data, error } = await supabase
+		.from('rooms')
+		.select('*')
+		.order('current_players', { ascending: false });
 	if (error) {
 		console.error('Error fetching rooms:', error);
 		throw new Error('Error fetching rooms');
@@ -83,25 +86,22 @@ export const actions = {
 			.select('room_id')
 			.eq('player_id', user.id);
 
+		const existingPlayer = existingPlayers[0];
+
 		if (existingPlayerError) {
 			console.error('Error checking existing room status:', existingPlayerError);
 			return message(form, 'Error checking existing room status');
 		}
 
-		if (existingPlayers.length > 1) {
-			console.error('Multiple entries found for the user in the players table');
-			return message(form, 'Multiple entries found for the user in the players table');
-		}
-
-		const existingPlayer = existingPlayers[0];
-
+		// TODO: Call leave room on the player's existing room
 		if (existingPlayer && existingPlayer.room_id !== room_id) {
 			return message(
 				form,
-				`You are still considered to be in room ${existingPlayer.room_id}. Please rejoin that room or wait 30 seconds.`
+				`You are still considered to be in room ${existingPlayer.room_id}. Please rejoin that room or wait ~30 seconds.`
 			);
 		}
-		// If the player exists and the room exists, redirect them to the room page
+
+		// If the player exists and is in the same room, redirect them to the room page
 		if (existingPlayer && existingPlayer.room_id === room_id) {
 			return redirect(303, `/app/rooms/${room_id}`);
 		}

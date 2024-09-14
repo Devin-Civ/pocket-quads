@@ -1,95 +1,52 @@
-import { createPlayersStore } from '$lib/stores/players';
 import { redirect } from '@sveltejs/kit';
-import { superValidate, message, fail } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
-import { z } from 'zod';
 
-const messageSchema = z.object({
-	content: z.string().min(1).max(50, 'Message must be less than 50 characters')
-});
+export const load = async ({ params: { room }, locals }) => {
+	const { data: roomData, error } = await locals.supabase
+		.from('rooms')
+		.select('*')
+		.eq('id', room)
+		.single();
 
-const leaveSchema = z.object({});
+	if (error) {
+		throw new Error(error.message);
+	}
 
-const dealSchema = z.object({});
-const passButtonSchema = z.object({});
-
-export const load = async ({ params, locals: { supabase, user } }) => {
-	const room_id = params.room;
-
-	const { data: players, error: playersError } = await supabase
+	const { data: playersData, error: playersError } = await locals.supabase
 		.from('players')
 		.select('*')
-		.eq('room_id', room_id);
+		.eq('room_id', room);
 
-	const messageForm = await superValidate(zod(messageSchema));
-	const leaveRoomForm = await superValidate(zod(leaveSchema));
-	const dealForm = await superValidate(zod(dealSchema));
-	const passButtonForm = await superValidate(zod(passButtonSchema));
+	if (playersError) {
+		throw new Error(playersError.message);
+	}
 
 	return {
-		room_id,
-		user_id: user.id,
-		leaveRoomForm,
-		players,
-		dealForm,
-		passButtonForm
+		room: roomData,
+		players: playersData,
+		user_id: locals.user.id
 	};
 };
 
 export const actions = {
-	fold: async ({ locals: { supabase, user } }) => {
-		// const { data, error } = await supabase.from('rooms').update({ folded: true }).eq('id', room.id);
-	},
+	fold: async () => {},
 	check: async () => {},
-	// etc
-	sendMessage: async ({ request, locals: { supabase, user, username }, params }) => {
-		const form = await superValidate(request, zod(messageSchema));
-		if (!form.valid) {
-			return fail(400, { form });
-		}
-		const { error } = await supabase.from('messages').insert({
-			room_id: params.room,
-			content: form.data.content,
-			user_id: user.id,
-			username
-		});
-		if (error) {
-			return message(form, `Error sending message: ${error.message}`);
-		}
-		return { form };
-	},
-	leaveRoom: async ({ request, locals: { supabase, user }, params }) => {
-		const form = await superValidate(request, zod(leaveSchema));
-		if (!form.valid) {
-			return fail(400, { form });
-		}
+	leaveRoom: async ({ locals: { supabase, user }, params }) => {
 		let { error } = await supabase.rpc('leave_room', {
 			in_player_id: user.id,
 			in_room_id: params.room
 		});
-		if (error) {
-			return message(form, `Error leaving room: ${error.message}`);
-		}
 		return redirect(303, '/app');
 	},
-	deal: async ({ request, locals: { supabase }, params }) => {
-		const form = await superValidate(request, zod(dealSchema));
+	deal: async ({ locals: { supabase }, params }) => {
 		const { error } = await supabase.rpc('shuffle_and_deal', {
 			room_id_input: params.room
 		});
-		if (error) {
-			return message(form, `Error dealing: ${error.message}`);
-		}
-		return { form };
+		return { success: true };
 	},
 	passButton: async ({ request, locals: { supabase }, params }) => {
-		const form = await superValidate(request, zod(passButtonSchema));
 		const { error } = await supabase.rpc('pass_button', {
 			room_id_input: params.room
 		});
-		if (error) {
-			return message(form, `Error passing button: ${error.message}`);
-		}
-		return { form };
+		return { success: true };
 	}
 };

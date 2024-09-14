@@ -1,14 +1,16 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import type { Player } from '$lib/types';
-	import { roomsStore } from '$lib/stores/rooms';
+	import { currentRoomStore } from '$lib/stores/rooms';
 	export let player: Player;
 	export let actionSeat: number; // Seat number where the action is currently
-
-	export let buttonPosition: number = 0;
 </script>
 
 <article class:folded={!player.has_cards} class:action-on={actionSeat === player.seat_number}>
-	<p class="seat">Seat {player.seat_number} {player.seat_number === buttonPosition ? '(D)' : ''}</p>
+	<p class="seat">
+		Seat {player.seat_number}
+		{player.seat_number === $currentRoomStore?.button_seat ? '(D)' : ''}
+	</p>
 	<p>Player: {player.username}</p>
 	<p>Stack: {player.stack}</p>
 	{#if player.current_wager}

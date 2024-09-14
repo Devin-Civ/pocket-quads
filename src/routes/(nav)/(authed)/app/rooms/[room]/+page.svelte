@@ -2,57 +2,45 @@
 	import { superForm } from 'sveltekit-superforms';
 	import Heartbeat from './Heartbeat.svelte';
 	import PlayerCard from './PlayerCard.svelte';
-	import { createPlayersStore } from '$lib/stores/players';
+	import { playersStore } from '$lib/stores/players';
 	import { onMount } from 'svelte';
 	import { derived } from 'svelte/store';
 	import { supabase } from '$lib/supabase';
 	import { goto } from '$app/navigation'; // Import the goto function
-	import type { Player } from '$lib/types';
-	import { roomsStore } from '$lib/stores/rooms';
+	import type { Player, Room } from '$lib/types';
+	import { currentRoomStore } from '$lib/stores/rooms';
 
 	export let data;
-	let { players, room_id, user_id } = data;
-	const { enhance: leaveRoomEnhance, message: leaveRoomMessage } = superForm(data.leaveRoomForm);
-	const { enhance: dealEnhance, message: dealMessage } = superForm(data.dealForm);
-	const { enhance: passButtonEnhance, message: passButtonMessage } = superForm(data.passButtonForm);
+	let { players, room, user_id } = data;
 
-	const playersStore = createPlayersStore(players, room_id);
+	$playersStore = players;
+	$currentRoomStore = room;
 
-	// Derived store to sort players by seat number
+	// Derived store to sort players by seat number :: TODO better way to handle this
 	const sortedPlayersStore = derived(playersStore, ($playersStore) => {
 		return $playersStore.slice().sort((a, b) => a.seat_number - b.seat_number);
 	});
 
 	let actionSeat = 0;
 
-	let buttonPosition: number | undefined;
-	roomsStore.subscribe((rooms) => {
-		buttonPosition = $roomsStore.find((room) => room.id === room_id)?.button_seat;
-	});
+	let userInPlayers = true;
 
 	// Check if the user is in the players store
 	$: {
-		const userInPlayers = $playersStore.some((player) => player.player_id === user_id);
+		userInPlayers = $playersStore.some((player) => player.player_id === user_id);
 		if (!userInPlayers) {
 			goto('/app'); // Redirect to /app if the user is not found in the players store
 		}
 	}
 
-	let userIsDealer = false;
-
-	$: {
-		const currentUser = $playersStore.find((player) => player.player_id === user_id);
-		if (currentUser && currentUser.seat_number === buttonPosition) {
-			userIsDealer = true;
-		}
-	}
+	const user = $playersStore.find((player) => player.player_id === user_id);
 
 	onMount(() => {
 		const playersChannel = supabase
 			.channel('room_players')
 			.on(
 				'postgres_changes',
-				{ event: '*', schema: 'public', table: 'players', filter: `room_id=eq.${room_id}` },
+				{ event: '*', schema: 'public', table: 'players', filter: `room_id=eq.${room.id}` },
 				(payload) => {
 					console.log('playersChannel: event received', payload);
 					playersStore.update((p: Player[]) => {
@@ -74,10 +62,25 @@
 				}
 			)
 			.subscribe();
-
+		const roomChannel = supabase
+			.channel('rooms')
+			.on(
+				'postgres_changes',
+				{ event: '*', schema: 'public', table: 'rooms', filter: `id=eq.${room.id}` },
+				(payload) => {
+					console.log('roomsChannel: event received', payload);
+					if (payload.eventType === 'UPDATE') {
+						$currentRoomStore = payload.new as Room;
+					} else {
+						throw new Error('Unexpected event type');
+					}
+				}
+			)
+			.subscribe();
 		// Clean up the subscription when the component is destroyed
 		return () => {
 			playersChannel.unsubscribe();
+			roomChannel.unsubscribe();
 		};
 	});
 </script>
@@ -87,7 +90,7 @@
 	<ul>
 		<!-- TODO: Make this pop up a modal that has the real exit room button -->
 		<li>
-			<form method="POST" action="?/leaveRoom" use:leaveRoomEnhance>
+			<form method="POST" action="?/leaveRoom">
 				<button type="submit" class="secondary">Exit Room</button>
 			</form>
 		</li>
@@ -97,15 +100,15 @@
 <Heartbeat {user_id} />
 
 {#each $sortedPlayersStore as player}
-	<PlayerCard {player} {actionSeat} {buttonPosition} />
+	<PlayerCard {player} {actionSeat} />
 {/each}
 
-{#if userIsDealer}
+{#if user?.seat_number === $currentRoomStore?.button_seat}
 	<div role="group" class="button-group">
-		<form method="POST" action="?/deal" use:dealEnhance>
+		<form method="POST" action="?/deal">
 			<button type="submit">Shuffle and Deal</button>
 		</form>
-		<form method="POST" action="?/passButton" use:passButtonEnhance>
+		<form method="POST" action="?/passButton">
 			<button type="submit">Pass Button</button>
 		</form>
 	</div>
