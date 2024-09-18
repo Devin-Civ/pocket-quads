@@ -7,6 +7,17 @@ const createPlayersStore = () => {
 	const updatePlayer = (player: Player) => {
 		update((players) => players.map((p) => (p.player_id === player.player_id ? player : p)));
 	};
+	const updatePlayerCards = (player_id: string, card_1: string | null, card_2: string | null) => {
+		update((players) => {
+			const updatedPlayers = players.map((p) =>
+				p.player_id === player_id ? { ...p, card_1, card_2 } : p
+			);
+			console.log(
+				`Updated current user's cards. ${updatedPlayers.find((p) => p.player_id === player_id)?.card_1} ${updatedPlayers.find((p) => p.player_id === player_id)?.card_2}`
+			); // Debugging log
+			return updatedPlayers;
+		});
+	};
 
 	const addPlayer = (player: Player) => {
 		update((players) => {
@@ -25,7 +36,8 @@ const createPlayersStore = () => {
 		set,
 		updatePlayer,
 		addPlayer,
-		removePlayer
+		removePlayer,
+		updatePlayerCards
 	};
 };
 

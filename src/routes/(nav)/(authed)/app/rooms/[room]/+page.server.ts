@@ -18,19 +18,35 @@ export const load = async ({ params: { room }, locals }) => {
 		.select('*')
 		.eq('room_id', room)
 		.order('seat_number', { ascending: true });
-
 	if (playersError) {
 		throw new Error(playersError.message);
 	}
 
-	if (!playersData.some((p: Player) => p.player_id === user_id)) {
+	const user = playersData.find((p: Player) => p.player_id === user_id);
+
+	if (!user) {
 		throw redirect(303, '/app');
+	}
+
+	if (user && user.has_cards) {
+		const { data: playerCardsData, error: playerCardsError } = await locals.supabase
+			.from('player_cards')
+			.select('card_1, card_2')
+			.eq('player_id', user_id)
+			.single();
+
+		if (playerCardsError) {
+			throw new Error(playerCardsError.message);
+		}
+
+		user.card_1 = playerCardsData.card_1;
+		user.card_2 = playerCardsData.card_2;
 	}
 
 	return {
 		room: roomData,
 		players: playersData,
-		user_id
+		user
 	};
 };
 

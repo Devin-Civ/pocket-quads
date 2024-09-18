@@ -1,25 +1,20 @@
 <script lang="ts">
-	import { superForm } from 'sveltekit-superforms';
 	import Heartbeat from './Heartbeat.svelte';
 	import PlayerCard from './PlayerCard.svelte';
 	import { playersStore } from '$lib/stores/players';
 	import { onMount } from 'svelte';
-	import { derived } from 'svelte/store';
 	import { supabase } from '$lib/supabase';
 	import { goto } from '$app/navigation'; // Import the goto function
 	import type { Player, Room } from '$lib/types';
 	import { currentRoomStore } from '$lib/stores/rooms';
 
 	export let data;
-	let { players, room, user_id } = data;
+	let { players, room, user } = data;
 
 	$playersStore = players;
 	$currentRoomStore = room;
 
 	let actionSeat = 0;
-
-	// When the room is joined, we can assert that there exists a user with the user_id
-	const user = $playersStore.find((player) => player.player_id === user_id)!;
 
 	onMount(() => {
 		const playersChannel = supabase
@@ -36,7 +31,7 @@
 							playersStore.updatePlayer(payload.new as Player);
 							break;
 						case 'DELETE':
-							if (payload.old.player_id === user_id) {
+							if (payload.old.player_id === user.player_id) {
 								goto('/app');
 							}
 							playersStore.removePlayer(payload.old.player_id);
@@ -67,16 +62,11 @@
 					event: 'UPDATE',
 					schema: 'public',
 					table: 'player_cards',
-					filter: `player_id=eq.${user_id}`
+					filter: `player_id=eq.${user.player_id}`
 				},
 				(payload) => {
-					if (payload.new.card_1) {
-						user.card_1 = payload.new.card_1;
-					}
-					if (payload.new.card_2) {
-						user.card_2 = payload.new.card_2;
-					}
-					playersStore.updatePlayer(user);
+					console.log('Card Update Detected:', payload.new);
+					playersStore.updatePlayerCards(user.player_id, payload.new.card_1, payload.new.card_2);
 				}
 			)
 			.subscribe();
@@ -101,9 +91,9 @@
 	</ul>
 </nav>
 
-<Heartbeat {user_id} />
+<Heartbeat user_id={user.player_id} />
 
-{#each $playersStore as player}
+{#each $playersStore as player (player.player_id)}
 	<PlayerCard {player} {actionSeat} />
 {/each}
 
