@@ -1,4 +1,4 @@
-export interface Room {
+export type Room = {
 	id: string;
 	creator_username: string;
 	current_players: number;
@@ -9,15 +9,15 @@ export interface Room {
 	big_blind: number;
 	creator_id: string;
 	button_seat: number;
-}
+};
 
-export interface UserData {
+export type UserData = {
 	user_id: string;
 	rooms: Room[];
 	form: any; // Adjust this type based on your form structure
-}
+};
 
-export interface Player {
+export type DB_Player = {
 	// Define the structure of a player object
 	player_id: string;
 	username: string;
@@ -29,4 +29,9 @@ export interface Player {
 	room_id: string;
 	card_2?: string | null;
 	card_1?: string | null;
-}
+};
+
+export type Player = DB_Player & {
+	card_1: string | null;
+	card_2: string | null;
+};

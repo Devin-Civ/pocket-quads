@@ -7,11 +7,12 @@
 	import { goto } from '$app/navigation'; // Import the goto function
 	import type { Player, Room } from '$lib/types';
 	import { currentRoomStore } from '$lib/stores/rooms';
+	import { enhance } from '$app/forms';
 
 	export let data;
 	let { players, room, user } = data;
 
-	$playersStore = players;
+	playersStore.init(players);
 	$currentRoomStore = room;
 
 	let actionSeat = 0;
@@ -99,10 +100,10 @@
 
 {#if user.seat_number === $currentRoomStore?.button_seat}
 	<div role="group" class="button-group">
-		<form method="POST" action="?/deal">
+		<form method="POST" action="?/deal" use:enhance>
 			<button type="submit">Shuffle and Deal</button>
 		</form>
-		<form method="POST" action="?/passButton">
+		<form method="POST" action="?/passButton" use:enhance>
 			<button type="submit">Pass Button</button>
 		</form>
 	</div>

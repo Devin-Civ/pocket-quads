@@ -3,6 +3,8 @@ import type { Player } from '$lib/types';
 
 export const load = async ({ params: { room }, locals }) => {
 	const user_id = locals.user.id;
+
+	// Get the room data
 	const { data: roomData, error } = await locals.supabase
 		.from('rooms')
 		.select('*')
@@ -13,6 +15,7 @@ export const load = async ({ params: { room }, locals }) => {
 		throw new Error(error.message);
 	}
 
+	// Get all players in the room
 	const { data: playersData, error: playersError } = await locals.supabase
 		.from('players')
 		.select('*')
@@ -24,10 +27,12 @@ export const load = async ({ params: { room }, locals }) => {
 
 	const user = playersData.find((p: Player) => p.player_id === user_id);
 
+	// Check when loading the web page that the user is in the room
 	if (!user) {
 		throw redirect(303, '/app');
 	}
 
+	// Check if the user has cards, if so, get them
 	if (user && user.has_cards) {
 		const { data: playerCardsData, error: playerCardsError } = await locals.supabase
 			.from('player_cards')
@@ -44,9 +49,9 @@ export const load = async ({ params: { room }, locals }) => {
 	}
 
 	return {
-		room: roomData,
-		players: playersData,
-		user
+		room: roomData, // the Room object of the room on load
+		players: playersData, // the Player objects of all players in the room on load
+		user // the Player object of current user on load
 	};
 };
 

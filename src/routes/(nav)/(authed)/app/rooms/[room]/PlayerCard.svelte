@@ -2,7 +2,7 @@
 	import { playersStore } from '$lib/stores/players';
 	import { currentRoomStore } from '$lib/stores/rooms';
 	import type { Player } from '$lib/types';
-	import { onDestroy } from 'svelte';
+	import { onDestroy, tick } from 'svelte';
 	import { derived } from 'svelte/store';
 
 	export let player: Player;
@@ -15,17 +15,22 @@
 		return $playersStore.find((p) => p.player_id === player_id);
 	});
 
-	let card1: string | null = null;
-	let card2: string | null = null;
+	let card1: string | null = 'Jo1';
+	let card2: string | null = 'Jo2';
+	let card1_src: string = `/retro_cards/Back_2.png`;
+	let card2_src: string = `/retro_cards/Back_2.png`;
 
 	// Subscribe to the derived store to update card1 and card2 reactively
 	const unsubscribe = currentPlayerStore.subscribe((currentPlayer) => {
 		card1 = currentPlayer?.card_1 ?? null;
 		card2 = currentPlayer?.card_2 ?? null;
-		console.log('card1', card1);
-		console.log('card2', card2);
+		if (card1 && card2) {
+			console.log(`${card1} and ${card2} recieved`);
+		}
+		card1_src = `/retro_cards/${card1 ? card1 : 'Back_2'}.png`;
+		card2_src = `/retro_cards/${card2 ? card2 : 'Back_2'}.png`;
+		console.log(`${card1_src} and ${card2_src} updated for ${player.username}`);
 	});
-
 	onDestroy(unsubscribe);
 </script>
 
@@ -41,19 +46,14 @@
 			{#if player.current_wager}
 				<p>Current Bet: {player.current_wager}</p>
 			{/if}
+			<p>Cards: {card1} {card2}</p>
+			<p>URLS: {card1_src} .............. {card2_src}</p>
+			<p>Cards (store): {$currentPlayerStore?.card_1} {$currentPlayerStore?.card_2}</p>
 		</div>
 		<div class="player-cards">
 			{#if player.has_cards}
-				<img
-					src={`/retro_cards/${card1 ? card1 : 'Back_2'}.png`}
-					alt={card1 ?? 'Back_2'}
-					class="card-image"
-				/>
-				<img
-					src={`/retro_cards/${card2 ? card2 : 'Back_2'}.png`}
-					alt={card2 ?? 'Back_2'}
-					class="card-image"
-				/>
+				<img src={card1_src} alt={card1 ?? 'Back_2'} class="card-image" />
+				<img src={card2_src} alt={card2 ?? 'Back_2'} class="card-image" />
 			{/if}
 		</div>
 	</div>
