@@ -47,7 +47,6 @@
 			{#if player.current_wager}
 				<p>Current Bet: {player.current_wager}</p>
 			{/if}
-			<p>Cards: {card1} {card2}</p>
 		</div>
 		<div class="player-cards">
 			{#if player.has_cards}
