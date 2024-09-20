@@ -24,10 +24,8 @@
 	// Reactive statement to compute player_have_cards
 	$: players_have_cards = $playersStore.some((player) => player.has_cards);
 
-	let n_shared_cards = 0;
-	if ($currentRoomStore && $currentRoomStore.shared_cards) {
-		n_shared_cards = $currentRoomStore.shared_cards.length;
-	}
+	$: n_shared_cards = $currentRoomStore?.shared_cards?.length || 0;
+
 	onMount(() => {
 		const playersChannel = supabase
 			.channel('room_players')
@@ -115,7 +113,7 @@
 	<div role="group" class="button-group">
 		<form method="POST" action="?/deal" use:enhance>
 			<input type="hidden" name="n_shared_cards" value={n_shared_cards} />
-			<input type="hidden" name="players_have_cards" value={players_have_cards} />
+			<input type="hidden" name="players_have_cards" value={players_have_cards.toString()} />
 			<button type="submit">Deal</button>
 		</form>
 		<form method="POST" action="?/passButton" use:enhance>

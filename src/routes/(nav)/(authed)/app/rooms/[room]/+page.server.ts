@@ -62,14 +62,16 @@ export const actions = {
 	},
 	deal: async ({ locals: { supabase }, params, request }) => {
 		const formData = await request.formData();
-		const n_shared_cards = formData.get('n_shared_cards');
-		const players_have_cards = formData.get('players_have_cards');
+		const n_shared_cards = Number(formData.get('n_shared_cards'));
+		const players_have_cards = formData.get('players_have_cards') === 'true';
+
+		console.log('players_have_cards', players_have_cards);
+		console.log('n_shared_cards', n_shared_cards);
 
 		switch (n_shared_cards) {
-			case '0':
-				console.log('players_have_cards', players_have_cards);
-				console.log('n_shared_cards', n_shared_cards);
+			case 0:
 				if (!players_have_cards) {
+					console.log('Shuffling and dealing');
 					const { error: errorShuffling } = await supabase.rpc('shuffle_and_deal', {
 						in_room_id: params.room
 					});
@@ -77,6 +79,7 @@ export const actions = {
 						throw new Error(errorShuffling.message);
 					}
 				} else {
+					console.log('Dealing flop');
 					const { error: errorDealingFlop } = await supabase.rpc('deal_flop', {
 						in_room_id: params.room
 					});
@@ -85,7 +88,8 @@ export const actions = {
 					}
 				}
 				return { success: true };
-			case '3':
+			case 3:
+				console.log('Dealing turn');
 				const { error: errorDealingTurn } = await supabase.rpc('deal_turn', {
 					in_room_id: params.room
 				});
@@ -93,7 +97,8 @@ export const actions = {
 					throw new Error(errorDealingTurn.message);
 				}
 				return { success: true };
-			case '4':
+			case 4:
+				console.log('Dealing river');
 				const { error: errorDealingRiver } = await supabase.rpc('deal_river', {
 					in_room_id: params.room
 				});
@@ -101,8 +106,11 @@ export const actions = {
 					throw new Error(errorDealingRiver.message);
 				}
 				return { success: true };
+			case 5:
+				console.log('Showdown!');
+				return { success: true };
 			default:
-				return { success: false };
+				throw new Error(`Invalid number of shared cards: ${n_shared_cards}`);
 		}
 	},
 	passButton: async ({ request, locals: { supabase }, params }) => {

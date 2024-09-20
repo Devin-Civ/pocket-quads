@@ -10,6 +10,7 @@
 
 	const player_id = player.player_id;
 
+	// TODO: Get rid of all this extraneous code
 	// Derived store to get the current player's cards reactively
 	const currentPlayerStore = derived(playersStore, ($playersStore) => {
 		return $playersStore.find((p) => p.player_id === player_id);
