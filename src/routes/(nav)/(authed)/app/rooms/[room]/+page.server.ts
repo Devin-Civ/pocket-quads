@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import type { Player } from '$lib/types';
+import type { Player } from '$lib/types/general';
 
 export const load = async ({ params: { room }, locals }) => {
 	const user_id = locals.user.id;
@@ -32,25 +32,20 @@ export const load = async ({ params: { room }, locals }) => {
 		throw redirect(303, '/app');
 	}
 
-	// Check if the user has cards, if so, get them
-	if (user && user.has_cards) {
-		const { data: playerCardsData, error: playerCardsError } = await locals.supabase
-			.from('player_cards')
-			.select('card_1, card_2')
-			.eq('player_id', user_id)
-			.single();
+	const { data: playerCardsData, error: playerCardsError } = await locals.supabase
+		.from('player_cards')
+		.select('card_1, card_2')
+		.eq('player_id', user_id)
+		.single();
 
-		if (playerCardsError) {
-			throw new Error(playerCardsError.message);
-		}
-
-		user.card_1 = playerCardsData.card_1;
-		user.card_2 = playerCardsData.card_2;
+	if (playerCardsError) {
+		throw new Error(playerCardsError.message);
 	}
 
 	return {
-		room: roomData, // the Room object of the room on load
-		players: playersData, // the Player objects of all players in the room on load
+		roomData, // the Room object of the room on load
+		playersData, // the Player objects of all players in the room on load
+		playerCardsData: user.has_cards ? playerCardsData : null, // the PlayerCards object of current user on load
 		user // the Player object of current user on load
 	};
 };

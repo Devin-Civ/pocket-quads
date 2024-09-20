@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { playersStore } from '$lib/stores/players';
 	import { currentRoomStore } from '$lib/stores/rooms';
-	import type { Player } from '$lib/types';
+	import type { Player } from '$lib/types/general';
 	import { onDestroy, tick } from 'svelte';
 	import { derived } from 'svelte/store';
 
@@ -47,8 +47,6 @@
 				<p>Current Bet: {player.current_wager}</p>
 			{/if}
 			<p>Cards: {card1} {card2}</p>
-			<p>URLS: {card1_src} .............. {card2_src}</p>
-			<p>Cards (store): {$currentPlayerStore?.card_1} {$currentPlayerStore?.card_2}</p>
 		</div>
 		<div class="player-cards">
 			{#if player.has_cards}

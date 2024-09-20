@@ -5,15 +5,18 @@
 	import { onMount } from 'svelte';
 	import { supabase } from '$lib/supabase';
 	import { goto } from '$app/navigation'; // Import the goto function
-	import type { Player, Room } from '$lib/types';
+	import type { Player, Room } from '$lib/types/general';
 	import { currentRoomStore } from '$lib/stores/rooms';
 	import { enhance } from '$app/forms';
 
 	export let data;
-	let { players, room, user } = data;
+	let { playersData, playerCardsData, roomData, user } = data;
 
-	playersStore.init(players);
-	$currentRoomStore = room;
+	playersStore.init(playersData);
+	if (data.playerCardsData) {
+		playersStore.updatePlayerCards(user.player_id, playerCardsData.card_1, playerCardsData.card_2);
+	}
+	$currentRoomStore = roomData;
 
 	let actionSeat = 0;
 
@@ -22,7 +25,7 @@
 			.channel('room_players')
 			.on(
 				'postgres_changes',
-				{ event: '*', schema: 'public', table: 'players', filter: `room_id=eq.${room.id}` },
+				{ event: '*', schema: 'public', table: 'players', filter: `room_id=eq.${roomData.id}` },
 				(payload) => {
 					switch (payload.eventType) {
 						case 'INSERT':
@@ -45,7 +48,7 @@
 			.channel('room')
 			.on(
 				'postgres_changes',
-				{ event: '*', schema: 'public', table: 'rooms', filter: `id=eq.${room.id}` },
+				{ event: '*', schema: 'public', table: 'rooms', filter: `id=eq.${roomData.id}` },
 				(payload) => {
 					if (payload.eventType === 'UPDATE') {
 						$currentRoomStore = payload.new as Room;
