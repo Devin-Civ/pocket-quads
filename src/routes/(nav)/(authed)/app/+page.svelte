@@ -4,7 +4,7 @@
 	import { supabase } from '$lib/supabase';
 	import { roomsStore } from '$lib/stores/rooms';
 	import { onMount } from 'svelte';
-	import type { Room } from '$lib/types.js';
+	import type { Room } from '$lib/types/general.js';
 
 	const { user_id } = data;
 	const { enhance, message, formId, delayed } = superForm(data.form);

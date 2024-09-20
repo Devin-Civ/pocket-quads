@@ -8,6 +8,7 @@
 	import type { Player, Room } from '$lib/types/general';
 	import { currentRoomStore } from '$lib/stores/rooms';
 	import { enhance } from '$app/forms';
+	import SharedCards from './SharedCards.svelte';
 
 	export let data;
 	let { playersData, playerCardsData, roomData, user } = data;
@@ -20,6 +21,13 @@
 
 	let actionSeat = 0;
 
+	// Reactive statement to compute player_have_cards
+	$: players_have_cards = $playersStore.some((player) => player.has_cards);
+
+	let n_shared_cards = 0;
+	if ($currentRoomStore && $currentRoomStore.shared_cards) {
+		n_shared_cards = $currentRoomStore.shared_cards.length;
+	}
 	onMount(() => {
 		const playersChannel = supabase
 			.channel('room_players')
@@ -97,6 +105,8 @@
 
 <Heartbeat user_id={user.player_id} />
 
+<SharedCards />
+
 {#each $playersStore as player (player.player_id)}
 	<PlayerCard {player} {actionSeat} />
 {/each}
@@ -104,7 +114,9 @@
 {#if user.seat_number === $currentRoomStore?.button_seat}
 	<div role="group" class="button-group">
 		<form method="POST" action="?/deal" use:enhance>
-			<button type="submit">Shuffle and Deal</button>
+			<input type="hidden" name="n_shared_cards" value={n_shared_cards} />
+			<input type="hidden" name="players_have_cards" value={players_have_cards} />
+			<button type="submit">Deal</button>
 		</form>
 		<form method="POST" action="?/passButton" use:enhance>
 			<button type="submit">Pass Button</button>

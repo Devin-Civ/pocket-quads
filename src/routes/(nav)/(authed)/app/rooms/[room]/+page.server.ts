@@ -60,15 +60,54 @@ export const actions = {
 		});
 		return redirect(303, '/app');
 	},
-	deal: async ({ locals: { supabase }, params }) => {
-		const { error } = await supabase.rpc('shuffle_and_deal', {
-			room_id_input: params.room
-		});
-		return { success: true };
+	deal: async ({ locals: { supabase }, params, request }) => {
+		const formData = await request.formData();
+		const n_shared_cards = formData.get('n_shared_cards');
+		const players_have_cards = formData.get('players_have_cards');
+
+		switch (n_shared_cards) {
+			case '0':
+				console.log('players_have_cards', players_have_cards);
+				console.log('n_shared_cards', n_shared_cards);
+				if (!players_have_cards) {
+					const { error: errorShuffling } = await supabase.rpc('shuffle_and_deal', {
+						in_room_id: params.room
+					});
+					if (errorShuffling) {
+						throw new Error(errorShuffling.message);
+					}
+				} else {
+					const { error: errorDealingFlop } = await supabase.rpc('deal_flop', {
+						in_room_id: params.room
+					});
+					if (errorDealingFlop) {
+						throw new Error(errorDealingFlop.message);
+					}
+				}
+				return { success: true };
+			case '3':
+				const { error: errorDealingTurn } = await supabase.rpc('deal_turn', {
+					in_room_id: params.room
+				});
+				if (errorDealingTurn) {
+					throw new Error(errorDealingTurn.message);
+				}
+				return { success: true };
+			case '4':
+				const { error: errorDealingRiver } = await supabase.rpc('deal_river', {
+					in_room_id: params.room
+				});
+				if (errorDealingRiver) {
+					throw new Error(errorDealingRiver.message);
+				}
+				return { success: true };
+			default:
+				return { success: false };
+		}
 	},
 	passButton: async ({ request, locals: { supabase }, params }) => {
 		const { error } = await supabase.rpc('pass_button', {
-			room_id_input: params.room
+			in_room_id: params.room
 		});
 		return { success: true };
 	}

@@ -9,6 +9,7 @@ export type Room = {
 	big_blind: number;
 	creator_id: string;
 	button_seat: number;
+	shared_cards: string[];
 };
 
 export type UserData = {
