@@ -105,9 +105,13 @@
 
 <SharedCards />
 
-{#each $playersStore as player (player.player_id)}
-	<PlayerCard {player} {actionSeat} />
-{/each}
+<div class="players-container">
+	{#each $playersStore as player (player.player_id)}
+		<div class="player-card-wrapper">
+			<PlayerCard {player} {actionSeat} />
+		</div>
+	{/each}
+</div>
 
 {#if user.seat_number === $currentRoomStore?.button_seat}
 	<div role="group" class="button-group">
@@ -121,3 +125,33 @@
 		</form>
 	</div>
 {/if}
+
+<style>
+	/* Flexbox container for player cards */
+	.players-container {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 20px; /* Add space between player cards */
+	}
+
+	/* Player card wrapper styling */
+	.player-card-wrapper {
+		flex: 1 1 calc(50% - 20px); /* Adjust as needed */
+		box-sizing: border-box; /* Ensure padding and border are included in the width */
+	}
+
+	/* Media query for larger screens */
+	@media (min-width: 768px) {
+		.player-card-wrapper {
+			flex: 1 1 calc(33.33% - 20px); /* Adjust as needed */
+		}
+	}
+
+	/* Media query for smaller screens */
+	@media (max-width: 767px) {
+		.player-card-wrapper {
+			flex: 1 1 100%; /* Full width for smaller screens */
+		}
+	}
+</style>

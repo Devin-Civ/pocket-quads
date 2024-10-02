@@ -73,10 +73,18 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+		max-width: 500px; /* Adjust as needed */
+		margin: 10px;
 	}
 	.player-details {
 		display: flex;
 		flex-direction: column;
+		margin-right: 20px; /* Add horizontal space between player details and cards */
+		flex-shrink: 0;
+	}
+	.player-details p {
+		margin: 2px 0;
+		white-space: nowrap;
 	}
 	.player-cards {
 		display: flex;
@@ -84,7 +92,10 @@
 	.card-image {
 		image-rendering: pixelated;
 		margin-left: 10px;
-		width: 75px;
+		width: 70px;
 		height: auto;
+	}
+	article {
+		max-width: 600px; /* Adjust as needed */
 	}
 </style>

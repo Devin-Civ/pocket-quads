@@ -34,6 +34,58 @@ const createPlayersStore = () => {
 		update((players) => players.filter((p) => p.player_id !== player_id));
 	};
 
+	const refreshPlayers = async (supabaseClient) => {
+		try {
+			const { data: dbPlayers, error } = await supabaseClient
+				.from('players')
+				.select('*')
+				.order('seat_number');
+
+			if (error) {
+				throw error;
+			}
+
+			update((currentPlayers) => {
+				return dbPlayers.map((dbPlayer) => {
+					const existingPlayer = currentPlayers.find((p) => p.player_id === dbPlayer.player_id);
+					return {
+						...dbPlayer,
+						card_1: existingPlayer ? existingPlayer.card_1 : null,
+						card_2: existingPlayer ? existingPlayer.card_2 : null
+					};
+				});
+			});
+		} catch (error) {
+			console.error('Error refreshing players:', error);
+		}
+	};
+
+	const refreshPlayerCards = async (supabaseClient, player_id: string) => {
+		try {
+			const { data, error } = await supabaseClient
+				.from('player_cards')
+				.select('card_1, card_2')
+				.eq('player_id', player_id)
+				.single();
+
+			if (error) {
+				throw error;
+			}
+
+			if (data) {
+				update((players) =>
+					players.map((player) =>
+						player.player_id === player_id
+							? { ...player, card_1: data.card_1, card_2: data.card_2 }
+							: player
+					)
+				);
+			}
+		} catch (error) {
+			console.error('Error updating current player cards:', error);
+		}
+	};
+
 	return {
 		subscribe,
 		init,
