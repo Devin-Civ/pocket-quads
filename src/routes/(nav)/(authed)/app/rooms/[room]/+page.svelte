@@ -112,7 +112,6 @@
 		</div>
 	{/each}
 </div>
-
 {#if user.seat_number === $currentRoomStore?.button_seat}
 	<div role="group" class="button-group">
 		<form method="POST" action="?/deal" use:enhance>

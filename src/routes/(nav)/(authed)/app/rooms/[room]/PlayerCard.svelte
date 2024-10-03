@@ -81,9 +81,11 @@
 		flex-direction: column;
 		margin-right: 20px; /* Add horizontal space between player details and cards */
 		flex-shrink: 0;
+		margin: 0;
 	}
 	.player-details p {
 		margin: 2px 0;
+		margin-bottom: 15px;
 		white-space: nowrap;
 	}
 	.player-cards {
