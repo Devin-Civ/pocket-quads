@@ -28,7 +28,9 @@
 				{#await randomSentence}
 					<h2>...</h2>
 				{:then response}
-					<p style="max-width: 600px; margin: 0 auto;">{response.randomSentence}</p>
+					<p style="max-width: 600px;">
+						{response.randomSentence}
+					</p>
 				{:catch}
 					<p>Nothing to see here!</p>
 				{/await}
@@ -48,5 +50,11 @@
 		--pico-typography-spacing-vertical: 1.5rem;
 		--pico-form-element-spacing-vertical: 1rem;
 		--pico-form-element-spacing-horizontal: 1.25rem;
+		letter-spacing: 1px;
+	}
+	p {
+		--pico-typography-spacing-vertical: 1.5rem;
+		line-height: 0.8;
+		letter-spacing: 1px;
 	}
 </style>
